@@ -1,6 +1,6 @@
 {
   "name": "kuss",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Combined Universal Storage Service",
   "main": "index.js",
   "scripts": {
@@ -24,7 +24,7 @@
   },
   "homepage": "https://github.com/influentialpublishers/kuss#readme",
   "eslintConfig": {
-    "extends": "eslint:recommended",
+    "extends": "influential",
     "parserOptions": {
       "ecmaVersion": 6,
       "sourceType": "module"
@@ -44,6 +44,8 @@
   },
   "devDependencies": {
     "chai": "^3.5.0",
+    "eslint": "^3.5.0",
+    "eslint-config-influential": "^1.1.0",
     "istanbul": "^0.4.5",
     "mocha": "^3.0.2",
     "must": "^0.13.2",
