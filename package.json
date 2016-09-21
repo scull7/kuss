@@ -1,5 +1,5 @@
 {
-  "name": "cuss",
+  "name": "kuss",
   "version": "0.1.0",
   "description": "Combined Universal Storage Service",
   "main": "index.js",
@@ -8,7 +8,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/influentialpublishers/cuss.git"
+    "url": "git+https://github.com/influentialpublishers/kuss.git"
   },
   "keywords": [
     "mysql",
@@ -20,9 +20,9 @@
   "author": "Nathan A Sculli <nsculli@influential.co>",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/influentialpublishers/cuss/issues"
+    "url": "https://github.com/influentialpublishers/kuss/issues"
   },
-  "homepage": "https://github.com/influentialpublishers/cuss#readme",
+  "homepage": "https://github.com/influentialpublishers/kuss#readme",
   "eslintConfig": {
     "extends": "eslint:recommended",
     "parserOptions": {
