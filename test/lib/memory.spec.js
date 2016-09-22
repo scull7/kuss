@@ -1,5 +1,6 @@
 /*eslint-env node, mocha*/
 const { expect }  = require('chai');
+const demand = require('must');
 const MemoryStore = require('../../lib/memory');
 
 describe('lib/memory-store.js', function() {
@@ -62,6 +63,118 @@ describe('lib/memory-store.js', function() {
 
     });
 
+    it ('should throw an error when invalid bucket', function() {
+
+      const bucket = 'test';
+      const other_bucket = 'nottest';
+      const data   = { foo: 'random thing', bar_key: 'blah' };
+      const update = { foo: 'another thing', bar_key: 'blah' };
+      const keys   = [ 'bar_key' ];
+
+      return store.insert(bucket, data)
+
+        .then(() => store.upsert(bucket, keys, update))
+
+        // test with invalid bucket
+        .then(store.getById(other_bucket))
+
+        .then((x) => {
+
+          expect(x.foo).to.eql('another thing');
+          expect(x.bar_key).to.eql('blah');
+
+        })
+
+        .catch((err) => {
+
+          // should throw an error for missing bucket
+          (err.name).must.eql('Error');
+          (err.message).must.eql(`Invalid Bucket: ${other_bucket}`);
+
+        });
+
+    });
+
+  });
+
+  describe('::projectAll', function() {
+
+    it('should return proper projected keys', function() {
+
+      const bucket = 'test';
+      const data1  = { foo: 'random thing', bar_key: 'blah' };
+      const data2  = { foo: 'another thing', bar_key: 'derp' };
+      const data3  = { foo: 'yet another thing', bar_key: 'foo' };
+      const keys   = [ 'bar_key' ];
+
+      return store.insert(bucket, data1)
+        .then(() => store.insert(bucket, data2))
+        .then(() => store.insert(bucket, data3))
+
+        .then(() => store.projectAll(bucket, keys))
+
+        .then((x) => {
+
+          x.must.have.length(3);
+          x[0].must.include('blah');
+          x[1].must.include('derp');
+          x[2].must.include('foo');
+
+        });
+
+    });
+
+  });
+
+  describe('::findOneBy', function() {
+
+    it('should get one item by prop and value', function() {
+
+      const bucket = 'test';
+      const data1 = { foo: 'random', bar_key: 'blah' };
+      const data2 = { foo: 'randomer', bar_key: 'derp' };
+      const proj = [ 'bar_key' ];
+
+      return store.insert(bucket, data1)
+        .then(() => store.insert(bucket, data2))
+        
+        .then(() => store.findOneBy(bucket, proj, 'bar_key', 'blah'))
+
+        .then((x) => {
+
+          x.must.be.an.object();
+          x.must.include('blah');
+
+        });
+
+    });
+
+    it('should return an error if it returns more than one obj', function() {
+
+      const bucket = 'test';
+      const data1 = { foo: 'random', bar_key: 'blah' };
+      const data2 = { foo: 'randomer', bar_key: 'derp' };
+      const data3 = { foo: 'randomest', bar_key: 'derp' };
+      const proj = [ 'bar_key' ];
+
+      return store.insert(bucket, data1)
+        .then(() => store.insert(bucket, data2))
+        .then(() => store.insert(bucket, data3))
+        
+        .then(() => store.findOneBy(bucket, proj, 'bar_key', 'derp'))
+
+        .then((x) => {
+            
+          console.log(x);
+
+        })
+        .catch((e) => {
+
+          (e.name).must.eql('TooManyRecords');
+
+        }); 
+
+    });
 
   });
 
