@@ -178,4 +178,28 @@ describe('lib/memory-store.js', function() {
 
   });
 
+  
+  describe('::findById', function() {
+
+    it('should get one item by id and project', function() {
+
+      const bucket = 'test';
+      const data = { foo: 'random', bar_key: 'blah' };
+      const proj = [ 'bar_key' ];
+
+      return store.insert(bucket, data)
+        
+        .then(store.findById(bucket, proj))
+
+        .then((x) => {
+
+          x.must.be.an.object();
+          x.must.include('blah');
+
+        });
+
+    });
+
+  });
+
 });
