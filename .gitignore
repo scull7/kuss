@@ -39,3 +39,6 @@ jspm_packages
 # VIM
 *.swp
 *.swo
+
+# Mac
+.DS_Store
