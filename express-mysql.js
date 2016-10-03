@@ -39,7 +39,7 @@ function Store({ namespace='DAO', connection_namespace='mysql' }) {
 }
 
 
-const Plugin = PluginFactory(({ connection, store }) => {
+const Plugin = PluginFactory(({ connection, store={} }) => {
 
   store.connection_namespace = R.prop('namespace', connection)
 
