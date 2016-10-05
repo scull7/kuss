@@ -15,7 +15,7 @@ const DEFAULT_NAMESPACE = 'es'
 const Plugin = PluginFactory((config = DEFAULT_ES_CONFIG) => {
   const namespace = R.propOr(DEFAULT_NAMESPACE, 'namespace', config)
 
-  const es = new Elasticsearch.client({
+  const es = new Elasticsearch.Client({
     host  : `${config.host}:${config.port}`
   , defer : () => Bluebird.defer()
   })
