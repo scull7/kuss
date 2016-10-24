@@ -4,7 +4,7 @@ const demand  = require('must')
 const Message = require('../../../lib/rabbitmq/message.js')
 
 
-describe.only('lib/rabbitmq/message.js', function() {
+describe('lib/rabbitmq/message.js', function() {
 
 
   describe('::encode', function() {
