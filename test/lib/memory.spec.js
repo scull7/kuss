@@ -49,13 +49,13 @@ describe('lib/memory-store.js', function() {
 
       return store.insert(bucket, data)
 
-        .then((id) => {
+        .then((id) =>
 
-          return store.upsert(bucket, keys, update)
+          store.upsert(bucket, keys, update)
 
           .then(() => store.getById(bucket)(id))
 
-        })
+        )
 
         .then((x) => {
 
