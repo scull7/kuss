@@ -2,7 +2,7 @@
 const { expect } = require('chai')
 const R = require('ramda')
 
-const MySqlStore = require('../../lib/mysql')
+const MySqlStore = require('../../../lib/mysql')
 
 describe('lib/mysql', function() {
 
