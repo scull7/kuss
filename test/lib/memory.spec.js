@@ -1,6 +1,5 @@
 /*eslint-env node, mocha*/
 const { expect }  = require('chai');
-const demand = require('must');
 const MemoryStore = require('../../lib/memory');
 
 describe('lib/memory-store.js', function() {
@@ -50,9 +49,13 @@ describe('lib/memory-store.js', function() {
 
       return store.insert(bucket, data)
 
-        .then(() => store.upsert(bucket, keys, update))
+        .then((id) => {
 
-        .then(store.getById(bucket))
+          return store.upsert(bucket, keys, update)
+
+          .then(() => store.getById(bucket)(id))
+
+        })
 
         .then((x) => {
 
