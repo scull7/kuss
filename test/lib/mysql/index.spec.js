@@ -63,15 +63,15 @@ describe('lib/mysql', function() {
       mysql.query = (actual_sql, actual_params, cb) => {
 
         expect(actual_sql).to.match(sql_regex)
-        expect(actual_params).to.deep.eql([id, params])
+        expect(actual_params).to.deep.eql([params, id])
 
         cb(null, { affectedRows: 1 })
 
       }
 
-      return store.update(table, params, id).then((result) => {
+      return store.update(table, id, params).then((result) => {
 
-        expect(result).to.eql(1)
+        expect(result).to.eql(id)
 
       })
 
