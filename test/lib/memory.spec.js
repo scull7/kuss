@@ -1,6 +1,5 @@
 /*eslint-env node, mocha*/
 const { expect }  = require('chai');
-const demand = require('must');
 const MemoryStore = require('../../lib/memory');
 
 describe('lib/memory-store.js', function() {
@@ -10,6 +9,31 @@ describe('lib/memory-store.js', function() {
   beforeEach(function() {
     store = MemoryStore();
   });
+
+
+  describe('::update', function() {
+
+    it('should update a value by id', function() {
+
+      const bucket    = 'test'
+      const data      = { id : '1', foo: 'bar', boo: 'fuck' }
+      const state     = { [bucket] : { [data.id] : data } }
+      const tempStore = MemoryStore(state)
+
+      return tempStore.update(bucket, data.id, { boo : 'hoo' })
+
+      .tap((id) => {
+        expect(id).to.eql(data.id)
+      })
+
+      .then(tempStore.getById(bucket))
+
+      .then((result) => {
+        expect(result.foo).to.eql(data.foo)
+        expect(result.boo).to.eql('hoo')
+      })
+    })
+  })
 
 
   describe('::upsert', function() {
@@ -50,16 +74,16 @@ describe('lib/memory-store.js', function() {
 
       return store.insert(bucket, data)
 
-        .then(() => store.upsert(bucket, keys, update))
+      .then(() => store.upsert(bucket, keys, update))
 
-        .then(store.getById(bucket))
+      .then(store.getById(bucket))
 
-        .then((x) => {
+      .then((x) => {
 
-          expect(x.foo).to.eql('another thing');
-          expect(x.bar_key).to.eql('blah');
+        expect(x.foo).to.eql('another thing');
+        expect(x.bar_key).to.eql('blah');
 
-        });
+      });
 
     });
 
