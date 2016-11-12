@@ -1,6 +1,7 @@
 /*eslint-env node, mocha*/
+/* eslint no-magic-numbers: 0 */
+
 const { expect } = require('chai')
-const R = require('ramda')
 
 const MySqlStore = require('../../../lib/mysql')
 
@@ -72,6 +73,37 @@ describe('lib/mysql', function() {
       return store.update(table, id, params).then((result) => {
 
         expect(result).to.eql(id)
+
+      })
+
+    })
+
+  })
+
+
+  describe('::updateWhere', function() {
+
+
+    it('should execute an updateWhere query on the given table', function() {
+
+      const table     = 'test'
+      const updates    = { foo: 'bar', bar: 'baz' }
+      const sql_regex = /^UPDATE `test` SET \? WHERE foo = 1 AND bar = buzz .*/
+
+      mysql.query = (actual_sql, actual_updates, cb) => {
+
+        expect(actual_sql).to.match(sql_regex)
+        expect(actual_updates).to.deep.equal([updates])
+
+        cb(null, { affectedRows: 3 })
+
+      }
+
+      return store.updateWhere(table, { foo : 1, bar : 'buzz' }, updates)
+
+      .then(result => {
+
+        expect(result).to.eql(3)
 
       })
 
