@@ -1,5 +1,6 @@
 /*eslint-env node, mocha*/
 /* eslint no-magic-numbers: 0 */
+/* eslint 'max-len': [ 'error', 100 ] */
 
 const { expect } = require('chai')
 
@@ -87,7 +88,8 @@ describe('lib/mysql', function() {
 
       const table     = 'test'
       const updates   = { foo: 'bar', bar: 'baz' }
-      const sql_regex = /^UPDATE `test` SET \? WHERE foo = 1 AND bar IS NULL .*/
+      const predicate = { foo : 1, bar : null, one : 'one' }
+      const sql_regex = /^UPDATE `test` SET \? WHERE foo = 1 AND bar IS NULL AND one = \'one\' .*/
 
       mysql.query = (actual_sql, actual_updates, cb) => {
         expect(actual_sql).to.match(sql_regex)
@@ -95,7 +97,7 @@ describe('lib/mysql', function() {
         cb(null, { affectedRows: 3 })
       }
 
-      return store.updateWhereEq(table, { foo : 1, bar : null }, updates)
+      return store.updateWhereEq(table)(predicate)(updates)
       .then(result => {
         expect(result).to.eql(3)
       })
