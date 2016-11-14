@@ -1,4 +1,7 @@
 /*eslint-env node, mocha*/
+/* eslint no-magic-numbers: 0 */
+/* eslint max-nested-callbacks: [ 'error', 5 ] */
+
 const { expect }  = require('chai');
 const MemoryStore = require('../../lib/memory');
 
@@ -31,6 +34,43 @@ describe('lib/memory-store.js', function() {
       .then((result) => {
         expect(result.foo).to.eql(data.foo)
         expect(result.boo).to.eql('hoo')
+      })
+    })
+  })
+
+
+  describe('::updateWhere', function() {
+
+    it('should update records that satisfy the predicate', function() {
+
+      const bucket    = 'test'
+      const data1     = { id : '1', foo: 'bar1', boo: 'fuck1' }
+      const data2     = { id : '2', foo: 'bar1', boo: 'fuck2' }
+      const data3     = { id : '3', foo: 'bar3', boo: 'fuck3' }
+      const state     = {
+        [bucket] : {
+          [data1.id] : data1
+        , [data2.id] : data2
+        , [data3.id] : data3
+        }
+      }
+      const tempStore = MemoryStore(state)
+
+      return tempStore.updateWhere(bucket)({ foo : 'bar1' })({ boo : 'hoo' })
+
+      .then(updated => {
+
+        expect(updated).to.eql(2)
+
+        expect(state[bucket][data1.id].id).to.eql(data1.id)
+        expect(state[bucket][data1.id].foo).to.eql(data1.foo)
+        expect(state[bucket][data1.id].boo).to.eql('hoo')
+
+        expect(state[bucket][data2.id].id).to.eql(data2.id)
+        expect(state[bucket][data2.id].foo).to.eql(data2.foo)
+        expect(state[bucket][data2.id].boo).to.eql('hoo')
+
+        expect(state[bucket][data3.id]).to.eql(data3)
       })
     })
   })
