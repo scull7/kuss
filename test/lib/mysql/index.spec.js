@@ -81,34 +81,25 @@ describe('lib/mysql', function() {
   })
 
 
-  describe('::updateWhere', function() {
+  describe('::updateWhereEq', function() {
 
-
-    it('should execute an updateWhere query on the given table', function() {
+    it('should execute an updateWhereEq query on the given table', function() {
 
       const table     = 'test'
-      const updates    = { foo: 'bar', bar: 'baz' }
-      const sql_regex = /^UPDATE `test` SET \? WHERE foo = 1 AND bar = buzz .*/
+      const updates   = { foo: 'bar', bar: 'baz' }
+      const sql_regex = /^UPDATE `test` SET \? WHERE foo = 1 AND bar IS NULL .*/
 
       mysql.query = (actual_sql, actual_updates, cb) => {
-
         expect(actual_sql).to.match(sql_regex)
         expect(actual_updates).to.deep.equal([updates])
-
         cb(null, { affectedRows: 3 })
-
       }
 
-      return store.updateWhere(table, { foo : 1, bar : 'buzz' }, updates)
-
+      return store.updateWhereEq(table, { foo : 1, bar : null }, updates)
       .then(result => {
-
         expect(result).to.eql(3)
-
       })
-
     })
-
   })
 
 

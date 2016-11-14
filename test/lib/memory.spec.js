@@ -39,7 +39,7 @@ describe('lib/memory-store.js', function() {
   })
 
 
-  describe('::updateWhere', function() {
+  describe('::updateWhereEq', function() {
 
     it('should update records that satisfy the predicate', function() {
 
@@ -56,7 +56,7 @@ describe('lib/memory-store.js', function() {
       }
       const tempStore = MemoryStore(state)
 
-      return tempStore.updateWhere(bucket)({ foo : 'bar1' })({ boo : 'hoo' })
+      return tempStore.updateWhereEq(bucket)({ foo : 'bar1' })({ boo : 'hoo' })
 
       .then(updated => {
 
