@@ -1,6 +1,8 @@
 /*eslint-env node, mocha*/
+/* eslint no-magic-numbers: 0 */
+/* eslint 'max-len': [ 'error', 100 ] */
+
 const { expect } = require('chai')
-const R = require('ramda')
 
 const MySqlStore = require('../../../lib/mysql')
 
@@ -77,6 +79,29 @@ describe('lib/mysql', function() {
 
     })
 
+  })
+
+
+  describe('::updateWhereEq', function() {
+
+    it('should execute an updateWhereEq query on the given table', function() {
+
+      const table     = 'test'
+      const updates   = { foo: 'bar', bar: 'baz' }
+      const predicate = { foo : 1, bar : null, one : 'one' }
+      const sql_regex = /^UPDATE `test` SET \? WHERE foo = 1 AND bar IS NULL AND one = \'one\' .*/
+
+      mysql.query = (actual_sql, actual_updates, cb) => {
+        expect(actual_sql).to.match(sql_regex)
+        expect(actual_updates).to.deep.equal([updates])
+        cb(null, { affectedRows: 3 })
+      }
+
+      return store.updateWhereEq(table)(predicate)(updates)
+      .then(result => {
+        expect(result).to.eql(3)
+      })
+    })
   })
 
 
