@@ -12,12 +12,24 @@ const DEFAULT_ES_CONFIG = {
 const DEFAULT_NAMESPACE = 'es'
 
 
+// Bluebird.defer() is deprecated
+// https://github.com/elastic/elasticsearch-js/issues/431
+const defer = () => {
+  const _defer = {}
+  _defer.promise = new Bluebird((resolve, reject) => {
+    _defer.resolve = resolve
+    _defer.reject  = reject
+  })
+  return _defer
+}
+
+
 const Plugin = PluginFactory((config = DEFAULT_ES_CONFIG) => {
   const namespace = R.propOr(DEFAULT_NAMESPACE, 'namespace', config)
 
   const es = new Elasticsearch.Client({
     host  : `${config.host}:${config.port}`
-  , defer : () => Bluebird.defer()
+  , defer : defer
   })
 
   return (req, res, next) => {
