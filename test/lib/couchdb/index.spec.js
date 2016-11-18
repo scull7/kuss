@@ -117,20 +117,16 @@ describe.only('lib/couchdb', function() {
   })
 
 
-  describe('::findWhere', function() {
+  describe('::findWhereEq', function() {
 
     it('should find documents with the matching keys', function() {
 
       return insertAllTestDocs(couchdb)
 
-      .then(() => couchdb.findWhere(
-        DB_NAME
-      , [ 'username' ]
-      , [ 'side' ]
-      , [ 'villain' ]
-      ))
-
-      .then(response => response.docs)
+      .then(() => couchdb.findWhereEq(DB_NAME, {
+        projection: [ 'username' ]
+      , predicates: { 'side': 'villain' }
+      }))
 
       .map(doc => doc.username)
 
