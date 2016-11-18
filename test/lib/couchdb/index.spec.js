@@ -62,7 +62,7 @@ function insertAllTestDocs(couchdb) {
 }
 
 
-describe.only('lib/couchdb', function() {
+describe('lib/couchdb', function() {
 
   let connection = null
   let couchdb    = null
@@ -172,5 +172,30 @@ describe.only('lib/couchdb', function() {
 
 
   })
+
+
+  describe('::update', function() {
+
+    it('should update an existing document',
+    function() {
+
+      return insertAllTestDocs(couchdb)
+
+      .then(() => couchdb.findWhereEq(DB_NAME, {
+        predicates: { 'username': 'superman' }
+      }))
+
+      .then(R.compose(R.prop('_id'), R.head))
+
+      .then(id => couchdb.update(DB_NAME, id, { has_cape: true }))
+
+      .then(couchdb.getById(DB_NAME))
+
+      .then(doc => demand(doc.has_cape).eql(true))
+
+    })
+
+  })
+
 
 })
