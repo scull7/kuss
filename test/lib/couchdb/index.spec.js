@@ -274,12 +274,29 @@ describe('lib/couchdb', function() {
 
   describe('::findById', function() {
 
-    it('should not be implemented yet',
+    it('should allow projection on a document selected by identifier',
     function() {
 
-      demand(couchdb.findById).throw('Not Implemented')
+      const PROJECTION = [ 'name_first', 'name_last' ]
+
+      return insertAllTestDocs(couchdb)
+
+      .then(() => couchdb.findWhereEq(DB_NAME, {
+        predicates: { username: 'superman' }
+      }))
+
+      .then(list => couchdb.findById(DB_NAME, PROJECTION, list[0]._id))
+
+      .then(doc => {
+
+        demand(doc).have.keys(PROJECTION)
+        demand(doc.name_first).eql('Clark')
+        demand(doc.name_last).eql('Kent')
+
+      })
 
     })
+
 
   })
 
