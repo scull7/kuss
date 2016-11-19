@@ -44,7 +44,7 @@ const TEST_DOCS = [
   }
 , { username: 'constantine'
   , name_first: 'John'
-  , name_last: 'constantine'
+  , name_last: 'Constantine'
   , side: 'hero'
   }
 , { username: 'damien_darhk'
