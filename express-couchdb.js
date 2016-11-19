@@ -1,22 +1,36 @@
 
+const R             = require('ramda')
+const onFinished    = require('on-finished')
 const PluginFactory = require('./lib/plugin-factory.js')
-const Couch         = require('./lib/couchdb')
+const CouchDBPool   = require('./lib/couchdb/pool.js')
 
 
-const Plugin = PluginFactory(config =>
+const DEFAULT_NAMESPACE = 'couchdb'
 
-  (req, res, next) =>
 
-    Couch(config)
+const Plugin = PluginFactory(config => {
+  const namespace  = R.propOr(DEFAULT_NAMESPACE, 'namespace', config)
+  const couch_pool = CouchDBPool(config)
 
-    .then((couch) => {
-      if (!req[config.namespace]) req[config.namespace] = couch
+  process.on('SIGINT', () => couch_pool.destroyAllNow())
+
+  return (req, res, next) => {
+
+    couch_pool.acquire((err, conn) => {
+
+      if (err) return next(err)
+
+      if(!req[namespace]) req[namespace] = conn
+
+      onFinished(res, () => { couch_pool.release(conn) })
+
       return next()
+
     })
 
-    .catch(next)
+  }
 
-)
+})
 
 
 module.exports = Plugin
