@@ -238,12 +238,30 @@ describe('lib/couchdb', function() {
 
   describe('::projectAll', function() {
 
-    it('should not be implemented yet',
+
+    it('should return all of the documents with the selected fields',
     function() {
 
-      demand(couchdb.projectAll).throw('Not Implemented')
+      const PROJECTION = [ 'username', 'side' ]
+
+      return insertAllTestDocs(couchdb)
+
+      .then(() => couchdb.projectAll(DB_NAME, PROJECTION))
+
+      .then(list => {
+
+        demand(list.length).eql(TEST_DOCS.length)
+        list.map(x => demand(x).have.keys(PROJECTION))
+
+        const test_names = R.pluck('username', TEST_DOCS).sort()
+        const db_names   = R.pluck('username', list).sort()
+
+        demand(db_names).eql(test_names)
+
+      })
 
     })
+
 
   })
 
