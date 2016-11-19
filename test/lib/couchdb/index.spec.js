@@ -195,6 +195,44 @@ describe('lib/couchdb', function() {
 
     })
 
+
+    it('should throw an error if you try to update a non-existant document',
+    function() {
+
+      return insertAllTestDocs(couchdb)
+
+      .then(() => couchdb.update(DB_NAME, 'dne', { has_cape: 'uhh, what?' }))
+
+      .then(() => { throw new Error('Update a non-existant doc succeeded!') })
+
+      .catch((e) => {
+
+        demand(e.statusCode).eql(404)
+        demand(e.statusMessage).eql('Not Found')
+
+      })
+
+    })
+
+
+    it('should throw a driver error if the database does not exist',
+    function() {
+
+      return couchdb.update('DNE', 'dne', { important: false })
+
+      .then(() => { throw new Error('Update to a non-existant bucket!') })
+
+      .catch ((e) => {
+
+        demand(e.path).eql('/DNE/dne')
+        demand(e.statusCode).eql(404)
+        demand(e.statusMessage).eql('Not Found')
+
+      })
+
+    })
+
+
   })
 
 
