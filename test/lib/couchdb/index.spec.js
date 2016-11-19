@@ -1,5 +1,5 @@
 /*eslint-env node, mocha*/
-/*eslint max-nested-callbacks: ["error", 4]*/
+/*eslint max-nested-callbacks: ["error", 5]*/
 /*eslint-disable  no-magic-numbers*/
 
 const R        = require('ramda')
@@ -250,36 +250,103 @@ describe('lib/couchdb', function() {
 
   describe('::findBy', function() {
 
-    it('should not be implemented yet',
+
+    it('should return all of the docs with the given key/value pair',
     function() {
+      const PROJECTION = [ 'username', 'side' ]
 
-      demand(couchdb.findBy).throw('Not Implemented')
+      return insertAllTestDocs(couchdb)
 
+      .then(() => couchdb.findBy(DB_NAME, PROJECTION, 'side', 'villain'))
+
+      .then(list => {
+
+        list.map(x => {
+          demand(x).have.keys(PROJECTION)
+          demand(x.side).eql('villain')
+        })
+        demand(list).have.length(2)
+
+      })
     })
+
 
   })
 
 
   describe('::findOneBy', function() {
 
-    it('should not be implemented yet',
+    it('should return a single doc',
     function() {
 
-      demand(couchdb.findOneBy).throw('Not Implemented')
+      const PROJECTION = [ 'username', 'side' ]
+
+      return insertAllTestDocs(couchdb)
+
+      .then(() => couchdb.findOneBy(DB_NAME, PROJECTION, 'username', 'anarky'))
+
+      .then(doc => {
+
+        demand(doc).have.keys(PROJECTION)
+        demand(doc.username).eql('anarky')
+        demand(doc.side).eql('both')
+
+      })
 
     })
+
+
+    it('should throw a TooManyRecords error when more ' +
+    'than one row is returned', function() {
+
+      const PROJECTION = [ 'username' ]
+      const expected   = 'Too many records. Found 2 records in ' +
+                         '`kuss-test-db` where `side` = "villain"'
+
+      return insertAllTestDocs(couchdb)
+
+      .then(() => couchdb.findOneBy(DB_NAME, PROJECTION, 'side', 'villain'))
+
+      .then(() => { throw new Error('Did not catch invalid response') })
+
+      .catch((e) => {
+
+        demand(e.name).eql('TooManyRecords')
+        demand(e.message).eql(expected)
+
+      })
+
+    })
+
 
   })
 
 
   describe('::findById', function() {
 
-    it('should not be implemented yet',
+    it('should allow projection on a document selected by identifier',
     function() {
 
-      demand(couchdb.findById).throw('Not Implemented')
+      const PROJECTION = [ 'name_first', 'name_last' ]
+
+      return insertAllTestDocs(couchdb)
+
+      .then(() => couchdb.findWhereEq(DB_NAME, {
+        predicates: { username: 'superman' }
+      }))
+
+      .then(list => couchdb.findById(DB_NAME, PROJECTION, list[0]._id))
+
+      .then(doc => {
+
+        demand(doc).have.keys(PROJECTION)
+        demand(doc.name_first).eql('Clark')
+        demand(doc.name_last).eql('Kent')
+
+      })
 
     })
+
 
   })
 
