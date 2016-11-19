@@ -1,5 +1,5 @@
 /*eslint-env node, mocha*/
-/*eslint max-nested-callbacks: ["error", 4]*/
+/*eslint max-nested-callbacks: ["error", 5]*/
 /*eslint-disable  no-magic-numbers*/
 
 const R        = require('ramda')
@@ -250,12 +250,26 @@ describe('lib/couchdb', function() {
 
   describe('::findBy', function() {
 
-    it('should not be implemented yet',
+
+    it('should return all of the docs with the given key/value pair',
     function() {
+      const PROJECTION = [ 'username', 'side' ]
 
-      demand(couchdb.findBy).throw('Not Implemented')
+      return insertAllTestDocs(couchdb)
 
+      .then(() => couchdb.findBy(DB_NAME, PROJECTION, 'side', 'villain'))
+
+      .then(list => {
+
+        list.map(x => {
+          demand(x).have.keys(PROJECTION)
+          demand(x.side).eql('villain')
+        })
+        demand(list).have.length(2)
+
+      })
     })
+
 
   })
 
