@@ -262,12 +262,48 @@ describe('lib/couchdb', function() {
 
   describe('::findOneBy', function() {
 
-    it('should not be implemented yet',
+    it('should return a single doc',
     function() {
 
-      demand(couchdb.findOneBy).throw('Not Implemented')
+      const PROJECTION = [ 'username', 'side' ]
+
+      return insertAllTestDocs(couchdb)
+
+      .then(() => couchdb.findOneBy(DB_NAME, PROJECTION, 'username', 'anarky'))
+
+      .then(doc => {
+
+        demand(doc).have.keys(PROJECTION)
+        demand(doc.username).eql('anarky')
+        demand(doc.side).eql('both')
+
+      })
 
     })
+
+
+    it('should throw a TooManyRecords error when more ' +
+    'than one row is returned', function() {
+
+      const PROJECTION = [ 'username' ]
+      const expected   = 'Too many records. Found 2 records in ' +
+                         '`kuss-test-db` where `side` = "villain"'
+
+      return insertAllTestDocs(couchdb)
+
+      .then(() => couchdb.findOneBy(DB_NAME, PROJECTION, 'side', 'villain'))
+
+      .then(() => { throw new Error('Did not catch invalid response') })
+
+      .catch((e) => {
+
+        demand(e.name).eql('TooManyRecords')
+        demand(e.message).eql(expected)
+
+      })
+
+    })
+
 
   })
 
