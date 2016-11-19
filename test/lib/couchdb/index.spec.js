@@ -236,4 +236,52 @@ describe('lib/couchdb', function() {
   })
 
 
+  describe('::projectAll', function() {
+
+    it('should not be implemented yet',
+    function() {
+
+      demand(couchdb.projectAll).throw('Not Implemented')
+
+    })
+
+  })
+
+
+  describe('::findBy', function() {
+
+    it('should not be implemented yet',
+    function() {
+
+      demand(couchdb.findBy).throw('Not Implemented')
+
+    })
+
+  })
+
+
+  describe('::findOneBy', function() {
+
+    it('should not be implemented yet',
+    function() {
+
+      demand(couchdb.findOneBy).throw('Not Implemented')
+
+    })
+
+  })
+
+
+  describe('::findById', function() {
+
+    it('should not be implemented yet',
+    function() {
+
+      demand(couchdb.findById).throw('Not Implemented')
+
+    })
+
+  })
+
+
 })
