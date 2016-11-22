@@ -301,7 +301,7 @@ describe('lib/memory-store.js', function() {
       , predicates : {
           foo : 'bar1'
         }
-      , sort : { foo : 'desc' }
+      , sort : [{ foo : 'desc' }]
       }
 
       return tempStore.findWhereEq('test', request)
@@ -339,7 +339,7 @@ describe('lib/memory-store.js', function() {
 
       const request = {
         projection : ['id', 'foo']
-      , sort       : { foo : 'desc' }
+      , sort       : [{ foo : 'desc' }]
       , skip       : 0
       , limit      : 3
       }
@@ -355,6 +355,40 @@ describe('lib/memory-store.js', function() {
       .then(rows => {
         (R.equals(expected, rows)).must.be.true()
         rows.must.have.length(3)
+      })
+
+    })
+
+    it('should sort the results with multiple sort keys', function() {
+
+      const request = {
+        projection : ['id', 'foo']
+      , sort       : [{ foo : 'desc' }, { id : 'asc'} ]
+      }
+
+      const expected = [
+        { id : '15', foo : 'bar15' }
+      , { id : '14', foo : 'bar14' }
+      , { id : '13', foo : 'bar13' }
+      , { id : '12', foo : 'bar12' }
+      , { id : '11', foo : 'bar11' }
+      , { id : '10', foo : 'bar10' }
+      , { id : '1', foo : 'bar1' }
+      , { id : '2', foo : 'bar1' }
+      , { id : '3', foo : 'bar1' }
+      , { id : '4', foo : 'bar1' }
+      , { id : '5', foo : 'bar1' }
+      , { id : '6', foo : 'bar1' }
+      , { id : '7', foo : 'bar1' }
+      , { id : '8', foo : 'bar1' }
+      , { id : '9', foo : 'bar1' }
+      ]
+
+      return tempStore.findWhereEq('test', request)
+
+      .then(rows => {
+        (R.equals(expected, rows)).must.be.true()
+        rows.must.have.length(15)
       })
 
     })
