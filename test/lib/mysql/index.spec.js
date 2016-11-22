@@ -1,6 +1,6 @@
 /*eslint-env node, mocha*/
 /* eslint no-magic-numbers: 0 */
-/* eslint 'max-len': [ 'error', 100 ] */
+/* eslint 'max-len': [ 'error', 200 ] */
 
 const { expect } = require('chai')
 
@@ -89,7 +89,7 @@ describe('lib/mysql', function() {
       const table     = 'test'
       const updates   = { foo: 'bar', bar: 'baz' }
       const predicate = { foo : 1, bar : null, one : 'one' }
-      const sql_regex = /^UPDATE `test` SET \? WHERE foo = 1 AND bar IS NULL AND one = \'one\' .*/
+      const sql_regex = /^UPDATE `test` SET \? WHERE `foo` = 1 AND `bar` IS NULL AND `one` = \'one\' .*/
 
       mysql.query = (actual_sql, actual_updates, cb) => {
         expect(actual_sql).to.match(sql_regex)
@@ -104,6 +104,139 @@ describe('lib/mysql', function() {
     })
   })
 
+
+  describe('::findWhereEq', function() {
+
+    it('should execute a select query on the given table', function() {
+
+      const table = 'post_archive'
+
+      const request = {
+        projection : ['id', 'traversal_id', 'network_type_code']
+      , predicates : { stored_es : 1479439176, deleted : 0 }
+      , sort       : [ { id : 'desc' } ]
+      , skip       : 2
+      , limit      : 3
+      }
+
+      const select_regex = /SELECT `id`, `traversal_id`, `network_type_code`/
+      const where_regex  = /WHERE `stored_es` = 1479439176 AND `deleted` = 0/
+      const sort_regex   = /ORDER BY `id` desc/
+      const offset_regex = /OFFSET 2/
+      const limit_regex  = /LIMIT 3/
+
+      mysql.query = (actual_sql, actual_updates, cb) => {
+        expect(actual_sql).to.match(select_regex)
+        expect(actual_sql).to.match(where_regex)
+        expect(actual_sql).to.match(sort_regex)
+        expect(actual_sql).to.match(offset_regex)
+        expect(actual_sql).to.match(limit_regex)
+        cb(null, [])
+      }
+
+      return store.findWhereEq(table, request)
+      .then(result => {
+        expect(result).to.eql([])
+      })
+    })
+
+    it('should execute a select query without sort', function() {
+
+      const table = 'post_archive'
+
+      const request = {
+        projection : ['id', 'traversal_id', 'network_type_code']
+      , predicates : { stored_es : 1479439176, deleted : 0 }
+      , skip       : 2
+      , limit      : 3
+      }
+
+      const select_regex = /SELECT `id`, `traversal_id`, `network_type_code`/
+      const where_regex  = /WHERE `stored_es` = 1479439176 AND `deleted` = 0/
+      const sort_regex   = /ORDER BY `id` desc/
+      const offset_regex = /OFFSET 2/
+      const limit_regex  = /LIMIT 3/
+
+
+      mysql.query = (actual_sql, actual_updates, cb) => {
+        expect(actual_sql).to.match(select_regex)
+        expect(actual_sql).to.match(where_regex)
+        expect(actual_sql).to.not.match(sort_regex)
+        expect(actual_sql).to.match(offset_regex)
+        expect(actual_sql).to.match(limit_regex)
+        cb(null, [])
+      }
+
+      return store.findWhereEq(table, request)
+      .then(result => {
+        expect(result).to.eql([])
+      })
+    })
+
+    it('should execute a select query without pagination', function() {
+
+      const table = 'post_archive'
+
+      const request = {
+        projection : ['id', 'traversal_id', 'network_type_code']
+      , predicates : { stored_es : 1479439176, deleted : 0 }
+      , sort       : [ { id : 'desc' } ]
+      }
+
+      const select_regex = /SELECT `id`, `traversal_id`, `network_type_code`/
+      const where_regex  = /WHERE `stored_es` = 1479439176 AND `deleted` = 0/
+      const sort_regex   = /ORDER BY `id` desc/
+      const offset_regex = /OFFSET 2/
+      const limit_regex  = /LIMIT 3/
+
+
+      mysql.query = (actual_sql, actual_updates, cb) => {
+        expect(actual_sql).to.match(select_regex)
+        expect(actual_sql).to.match(where_regex)
+        expect(actual_sql).to.match(sort_regex)
+        expect(actual_sql).to.not.match(offset_regex)
+        expect(actual_sql).to.not.match(limit_regex)
+        cb(null, [])
+      }
+
+      return store.findWhereEq(table, request)
+      .then(result => {
+        expect(result).to.eql([])
+      })
+    })
+
+    it('should execute a select query with a multi ORDER BY', function() {
+
+      const table = 'post_archive'
+
+      const request = {
+        projection : ['id', 'traversal_id', 'network_type_code']
+      , predicates : { stored_es : 1479439176, deleted : 0 }
+      , sort       : [ { id : 'desc' }, { priority : 'asc' } ]
+      }
+
+      const select_regex = /SELECT `id`, `traversal_id`, `network_type_code`/
+      const where_regex  = /WHERE `stored_es` = 1479439176 AND `deleted` = 0/
+      const sort_regex   = /ORDER BY `id` desc, `priority` asc/
+      const offset_regex = /OFFSET 2/
+      const limit_regex  = /LIMIT 3/
+
+      mysql.query = (actual_sql, actual_updates, cb) => {
+        expect(actual_sql).to.match(select_regex)
+        expect(actual_sql).to.match(where_regex)
+        expect(actual_sql).to.match(sort_regex)
+        expect(actual_sql).to.not.match(offset_regex)
+        expect(actual_sql).to.not.match(limit_regex)
+        cb(null, [])
+      }
+
+      return store.findWhereEq(table, request)
+      .then(result => {
+        expect(result).to.eql([])
+      })
+    })
+
+  })
 
   describe('::upsert', function() {
 
