@@ -402,7 +402,7 @@ describe('lib/mysql', function() {
         const expected_sql = ' SELECT `id`, `foo`, `bar`'
           + ' FROM `test`'
           + ' WHERE `id` = ? '
-        
+
 
         mysql.query = (actual_sql, actual_params, cb) => {
 
@@ -435,7 +435,7 @@ describe('lib/mysql', function() {
         const expected_sql = ' SELECT `foo`, `bar`'
           + ' FROM `test`'
           + ' WHERE `foo` = ? '
-        
+
 
         mysql.query = (actual_sql, actual_params, cb) => {
 
@@ -463,7 +463,7 @@ describe('lib/mysql', function() {
         const expected_sql = ' SELECT `foo`, `bar`'
           + ' FROM `test`'
           + ' WHERE `foo` = ? '
-        
+
 
         mysql.query = (actual_sql, actual_params, cb) => {
 
