@@ -114,6 +114,24 @@ describe('lib/couchdb', function() {
 
     })
 
+
+    it('should allow the user to use the tap function.'
+    , function() {
+
+      let expected = null
+
+      return couchdb.insert(DB_NAME, TEST_DOCS[0])
+
+      .tap( id  => { expected = id })
+
+      .then( actual => {
+        demand(actual).eql(expected)
+        demand(actual).is.a.string()
+      })
+
+    })
+
+
   })
 
 
