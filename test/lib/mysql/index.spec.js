@@ -114,7 +114,7 @@ describe('lib/mysql', function() {
       const request = {
         projection : ['id', 'traversal_id', 'network_type_code']
       , predicates : { stored_es : 1479439176, deleted : 0 }
-      , sort       : { id : 'desc' }
+      , sort       : [ { id : 'desc' } ]
       , skip       : 2
       , limit      : 3
       }
@@ -180,7 +180,7 @@ describe('lib/mysql', function() {
       const request = {
         projection : ['id', 'traversal_id', 'network_type_code']
       , predicates : { stored_es : 1479439176, deleted : 0 }
-      , sort       : { id : 'desc' }
+      , sort       : [ { id : 'desc' } ]
       }
 
       const select_regex = /SELECT `id`, `traversal_id`, `network_type_code`/
@@ -189,6 +189,37 @@ describe('lib/mysql', function() {
       const offset_regex = /OFFSET 2/
       const limit_regex  = /LIMIT 3/
 
+
+      mysql.query = (actual_sql, actual_updates, cb) => {
+        expect(actual_sql).to.match(select_regex)
+        expect(actual_sql).to.match(where_regex)
+        expect(actual_sql).to.match(sort_regex)
+        expect(actual_sql).to.not.match(offset_regex)
+        expect(actual_sql).to.not.match(limit_regex)
+        cb(null, [])
+      }
+
+      return store.findWhereEq(table, request)
+      .then(result => {
+        expect(result).to.eql([])
+      })
+    })
+
+    it('should execute a select query with a multi ORDER BY', function() {
+
+      const table = 'post_archive'
+
+      const request = {
+        projection : ['id', 'traversal_id', 'network_type_code']
+      , predicates : { stored_es : 1479439176, deleted : 0 }
+      , sort       : [ { id : 'desc' }, { priority : 'asc' } ]
+      }
+
+      const select_regex = /SELECT `id`, `traversal_id`, `network_type_code`/
+      const where_regex  = /WHERE `stored_es` = 1479439176 AND `deleted` = 0/
+      const sort_regex   = /ORDER BY `id` desc, `priority` asc/
+      const offset_regex = /OFFSET 2/
+      const limit_regex  = /LIMIT 3/
 
       mysql.query = (actual_sql, actual_updates, cb) => {
         expect(actual_sql).to.match(select_regex)
