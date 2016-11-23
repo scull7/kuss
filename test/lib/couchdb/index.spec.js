@@ -78,7 +78,7 @@ describe('lib/couchdb', function() {
 
   before(function() {
 
-    return Bluebird.resolve(CouchDB({ db_config: DB_CONN }))
+    return Bluebird.resolve(CouchDB(DB_CONN))
 
     .tap((client) => { couchdb = client })
   })
