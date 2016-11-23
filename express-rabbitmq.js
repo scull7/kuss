@@ -13,13 +13,13 @@ const Plugin = PluginFactory((config) => {
   const namespace   = R.propOr(DEFAULT_NAMESPACE, 'namespace', config)
   const rabbit_pool = RabbitMQPool(config)
 
-  process.on('SIGINT', () => rabbit_pool.destroyAllNow())
+  process.on('SIGINT', rabbit_pool.shutdown)
 
   return (req, res, next) => {
 
-    rabbit_pool.acquire((err, conn) => {
+    rabbit_pool.acquire()
 
-      if (err) return next(err)
+    .then(conn => {
 
       if (!req[namespace]) req[namespace] = {
         publish     : RabbitMQFacade.publish(conn)
@@ -32,8 +32,9 @@ const Plugin = PluginFactory((config) => {
 
     })
 
-  }
+    .catch(next)
 
+  }
 
 })
 

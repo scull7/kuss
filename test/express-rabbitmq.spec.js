@@ -9,26 +9,11 @@ const RabbitMQPool = require('../lib/rabbitmq/pool.js')
 /*eslint-disable max-nested-callbacks*/
 describe('express-rabbitmq.js', function() {
 
-  const pool = RabbitMQPool()
+  const pool = RabbitMQPool({})
   let conn   = null
 
 
-  before((done) => {
-
-    pool.acquire((err, rabbitmq) => {
-
-      if (err) return done(err)
-
-      conn = rabbitmq
-
-      return done()
-
-    })
-
-  })
-
-
-  after(() => pool.destroyAllNow())
+  before(() => pool.acquire().then( rabbitmq => { conn = rabbitmq }))
 
 
   describe('::publish', function() {
@@ -87,6 +72,8 @@ describe('express-rabbitmq.js', function() {
         , content: expected
         })
 
+        .then(() => res.emit('end'))
+
       })
 
     })
@@ -140,6 +127,8 @@ describe('express-rabbitmq.js', function() {
           contentType: Message.CONTENT_TYPE.TEXT
         , content: expected
         })
+
+        .then(() => res.emit('end'))
 
       })
 

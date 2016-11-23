@@ -12,13 +12,13 @@ const Plugin = PluginFactory(config => {
   const namespace  = R.propOr(DEFAULT_NAMESPACE, 'namespace', config)
   const couch_pool = CouchDBPool(config)
 
-  process.on('SIGINT', () => couch_pool.destroyAllNow())
+  process.on('SIGINT', couch_pool.shutdown)
 
   return (req, res, next) => {
 
-    couch_pool.acquire((err, conn) => {
+    couch_pool.acquire()
 
-      if (err) return next(err)
+    .then(conn => {
 
       if(!req[namespace]) req[namespace] = conn
 
@@ -27,6 +27,8 @@ const Plugin = PluginFactory(config => {
       return next()
 
     })
+
+    .catch(next)
 
   }
 
