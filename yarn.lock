@@ -43,14 +43,14 @@ amdefine@>=0.0.4:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/amdefine/-/amdefine-1.0.1.tgz#4a5282ac164729e93619bcfd3ad151f817ce91f5"
 
-amqplib@^0.4.2:
-  version "0.4.2"
-  resolved "https://registry.yarnpkg.com/amqplib/-/amqplib-0.4.2.tgz#5e4a2a914ccb3125f9cb91f6da07c97aa4cb13a6"
+amqplib@^0.5.1:
+  version "0.5.1"
+  resolved "https://registry.yarnpkg.com/amqplib/-/amqplib-0.5.1.tgz#7cccfebabe56c2e984ea7a2243f7cefe6fbfc6cf"
   dependencies:
     bitsyntax "~0.0.4"
+    bluebird "^3.4.6"
     buffer-more-ints "0.0.2"
     readable-stream "1.x >=1.1.9"
-    when "~3.6.2"
 
 ansi-escapes@^1.1.0:
   version "1.4.0"
@@ -637,9 +637,9 @@ generate-object-property@^1.1.0:
   dependencies:
     is-property "^1.0.0"
 
-generic-pool@^2.4.3:
-  version "2.5.0"
-  resolved "https://registry.yarnpkg.com/generic-pool/-/generic-pool-2.5.0.tgz#3527229cf4bca1fc40853570dd30541b92442cbe"
+generic-pool@^3.1.2:
+  version "3.1.2"
+  resolved "https://registry.yarnpkg.com/generic-pool/-/generic-pool-3.1.2.tgz#432cb3dcc6fccb3a416b4a1297313faf53caf79f"
 
 get-stream@^2.3.0:
   version "2.3.1"
@@ -1285,9 +1285,9 @@ pify@^2.0.0:
   version "2.3.0"
   resolved "https://registry.yarnpkg.com/pify/-/pify-2.3.0.tgz#ed141a6ac043a849ea588498e7dca8b15330e90c"
 
-pimp-my-sql@^0.1.3:
-  version "0.1.3"
-  resolved "https://registry.yarnpkg.com/pimp-my-sql/-/pimp-my-sql-0.1.3.tgz#b2dd23115f6dc8a3b4b9ed4213991a87c09b0e90"
+pimp-my-sql@^0.2.0:
+  version "0.2.0"
+  resolved "https://registry.yarnpkg.com/pimp-my-sql/-/pimp-my-sql-0.2.0.tgz#8b6bb78e0adf498465a07455eba4f8afdb140429"
   dependencies:
     bluebird "^3.4.1"
     chalk "^1.1.3"
@@ -1498,6 +1498,10 @@ shelljs@^0.7.5:
     interpret "^1.0.0"
     rechoir "^0.6.2"
 
+simple-backoff@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/simple-backoff/-/simple-backoff-1.0.0.tgz#a4fa290ec01969c07ca136fe8bbfb40e0ef35ac2"
+
 sinon@^1.17.6:
   version "1.17.6"
   resolved "https://registry.yarnpkg.com/sinon/-/sinon-1.17.6.tgz#a43116db59577c8296356afee13fafc2332e58e1"
@@ -1701,10 +1705,6 @@ util-deprecate@~1.0.1:
   dependencies:
     inherits "2.0.1"
 
-uuid@^2.0.3:
-  version "2.0.3"
-  resolved "https://registry.yarnpkg.com/uuid/-/uuid-2.0.3.tgz#67e2e863797215530dff318e5bf9dcebfd47b21a"
-
 uuid@^3.0.0:
   version "3.0.0"
   resolved "https://registry.yarnpkg.com/uuid/-/uuid-3.0.0.tgz#6728fc0459c450d796a99c31837569bdf672d728"
@@ -1714,10 +1714,6 @@ verror@1.3.6:
   resolved "https://registry.yarnpkg.com/verror/-/verror-1.3.6.tgz#cff5df12946d297d2baaefaa2689e25be01c005c"
   dependencies:
     extsprintf "1.0.2"
-
-when@~3.6.2:
-  version "3.6.4"
-  resolved "https://registry.yarnpkg.com/when/-/when-3.6.4.tgz#473b517ec159e2b85005497a13983f095412e34e"
 
 which@^1.1.1:
   version "1.2.12"

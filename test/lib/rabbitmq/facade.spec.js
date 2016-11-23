@@ -11,25 +11,8 @@ describe('lib/rabbitmq/facade.js', function() {
   const pool = RabbitMQPool()
   let conn   = null
 
-  before(function(done) {
 
-    pool.acquire((err, rabbitmq) => {
-
-      if (err) return done(err)
-
-
-      conn = rabbitmq
-
-      return done()
-
-    })
-
-  })
-
-
-  after(function() {
-    pool.destroyAllNow()
-  })
+  before(() => pool.acquire().then(rabbitmq => { conn = rabbitmq }))
 
 
   describe('::publish', function() {
