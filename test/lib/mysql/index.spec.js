@@ -2,6 +2,7 @@
 /* eslint no-magic-numbers: 0 */
 /* eslint 'max-len': [ 'error', 200 ] */
 
+const R          = require('ramda')
 const { expect } = require('chai')
 
 const MySqlStore = require('../../../lib/mysql')
@@ -255,7 +256,7 @@ describe('lib/mysql', function() {
   describe('::upsert', function() {
 
 
-    it('should execute an upsert query on the given table', function() {
+    it('should insert a record in the given table', function() {
 
       const table  = 'test'
       const params = { foo: 'bar', bar: 'baz', baz: 'boo' }
@@ -285,6 +286,56 @@ describe('lib/mysql', function() {
 
     })
 
+    it('should update a record on the given table', function() {
+
+      const table  = 'test'
+      const params = { foo: 'bar', bar: 'baz', baz: 'boo' }
+      const props  = [ 'baz', 'foo' ]
+      const sql_regex = new RegExp(
+        "^INSERT INTO `test` SET \\? " +
+        "ON DUPLICATE KEY UPDATE " +
+        "`baz`=VALUES\\(`baz`\\), `foo`=VALUES\\(`foo`\\) " +
+                            "-- [a-f0-9]{29}"
+      )
+
+      mysql.query = (actual_sql, actual_params, cb) => {
+        if (R.test(/^SELECT/g, actual_sql)) return cb(null, [{id:9}])
+        expect(actual_sql).to.match(sql_regex)
+        expect(actual_params).to.deep.eql(params)
+        cb(null, { affectedRows: 1 })
+      }
+
+      return store.upsert(table, props, params).then((result) => {
+        expect(result).to.eql(9)
+      })
+
+    })
+
+    it('should throw upsert failed', function() {
+
+      const table  = 'test'
+      const params = { foo: 'bar', bar: 'baz', baz: 'boo' }
+      const props  = [ 'baz', 'foo' ]
+      const sql_regex = new RegExp(
+        "^INSERT INTO `test` SET \\? " +
+        "ON DUPLICATE KEY UPDATE " +
+        "`baz`=VALUES\\(`baz`\\), `foo`=VALUES\\(`foo`\\) " +
+                            "-- [a-f0-9]{29}"
+      )
+
+      mysql.query = (actual_sql, actual_params, cb) => {
+        expect(actual_sql).to.match(sql_regex)
+        expect(actual_params).to.deep.eql(params)
+        cb(null, {})
+      }
+
+      return store.upsert(table, props, params)
+      .then(() => { throw new Error('should not get here noob') })
+      .catch(e => {
+        expect(e.message).to.match(/^Upsert Failed/)
+      })
+
+    })
 
   })
 
