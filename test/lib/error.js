@@ -43,4 +43,24 @@ describe('lib/error.js', function() {
 
   })
 
+  it('TooManyRecords Error should have a composable throw method',
+  function() {
+
+    try {
+
+      Error.TooManyRecords.throw('couch')('interest')('fave')('butts')(2)
+
+    } catch (e) {
+
+      const message = 'Too many records. '
+                    + 'Found 2 records in \`couch\`.\`interest\` '
+                    + 'where \`fave\` = "butts"'
+
+      demand(e.name).eql('TooManyRecords')
+      demand(e.status).eql(500)
+      demand(e.message).eql(message)
+    }
+
+  })
+
 })
