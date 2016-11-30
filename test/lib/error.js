@@ -14,16 +14,33 @@ describe('lib/error.js', function() {
 
     try {
 
-      Error.throwCussError(Error.NotFound, 'foo', 'bar')
+      Error.throwCussError(Error.NotFound, 'couch', 'foo', 'bar')
 
     } catch (e) {
 
-      demand(e.message).eql(`Not Found - TABLE: foo ID: bar`)
+      demand(e.name).eql('NotFound')
       demand(e.status).eql(404)
+      demand(e.message).eql(`Not Found - STORE: couch TABLE: foo ID: bar`)
 
     }
 
   })
 
+  it('NotFound Error should have a composable throw method',
+  function() {
+
+    try {
+
+      Error.NotFound.throw('couch')('foo')('bar')
+
+    } catch (e) {
+
+      demand(e.name).eql('NotFound')
+      demand(e.status).eql(404)
+      demand(e.message).eql(`Not Found - STORE: couch TABLE: foo ID: bar`)
+
+    }
+
+  })
 
 })

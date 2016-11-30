@@ -7,6 +7,7 @@ const Bluebird = require('bluebird')
 const demand   = require('must')
 const GotCouch = require('got-couch')
 const CouchDB  = require('../../../lib/couchdb/index.js')
+const Err      = require('../../../lib/error')
 
 const DB_NAME  = 'kuss-test-db'
 const DB_CONN  = {
@@ -194,62 +195,30 @@ describe('lib/couchdb', function() {
 
   describe('::update', function() {
 
-    it('should update an existing document',
-    function() {
-
-      return insertAllTestDocs(couchdb)
-
+    it('should update an existing document', () =>
+      insertAllTestDocs(couchdb)
       .then(() => couchdb.findWhereEq(DB_NAME, {
         predicates: { 'username': 'superman' }
       }))
-
       .then(R.compose(R.prop('_id'), R.head))
-
       .then(id => couchdb.update(DB_NAME, id, { has_cape: true }))
-
       .then(couchdb.getById(DB_NAME))
-
       .then(doc => demand(doc.has_cape).eql(true))
+    )
 
-    })
-
-
-    it('should throw an error if you try to update a non-existant document',
-    function() {
-
-      return insertAllTestDocs(couchdb)
-
+    it(`should throw a NotFound error if you try to update a non-existant
+      document`, () =>
+      insertAllTestDocs(couchdb)
       .then(() => couchdb.update(DB_NAME, 'dne', { has_cape: 'uhh, what?' }))
-
       .then(() => { throw new Error('Update a non-existant doc succeeded!') })
+      .catch(Err.NotFound, e => { demand(e.status).eql(404) })
+    )
 
-      .catch((e) => {
-
-        demand(e.statusCode).eql(404)
-        demand(e.statusMessage).eql('Not Found')
-
-      })
-
-    })
-
-
-    it('should throw a driver error if the database does not exist',
-    function() {
-
-      return couchdb.update('DNE', 'dne', { important: false })
-
+    it('should throw a driver error if the database does not exist', () =>
+      couchdb.update('DNE', 'dne', { important: false })
       .then(() => { throw new Error('Update to a non-existant bucket!') })
-
-      .catch ((e) => {
-
-        demand(e.path).eql('/DNE/dne')
-        demand(e.statusCode).eql(404)
-        demand(e.statusMessage).eql('Not Found')
-
-      })
-
-    })
-
+      .catch (Err.NotFound, e => { demand(e.status).eql(404) })
+    )
 
   })
 

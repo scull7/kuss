@@ -5,6 +5,7 @@
 const { expect } = require('chai')
 
 const MySqlStore = require('../../../lib/mysql')
+const Err        = require('../../../lib/error')
 
 describe('lib/mysql', function() {
 
@@ -63,22 +64,35 @@ describe('lib/mysql', function() {
       const sql_regex = /^UPDATE `test` SET .*/
 
       mysql.query = (actual_sql, actual_params, cb) => {
-
         expect(actual_sql).to.match(sql_regex)
         expect(actual_params).to.deep.eql([params, id])
-
         cb(null, { affectedRows: 1 })
-
       }
 
       return store.update(table, id, params).then((result) => {
-
         expect(result).to.eql(id)
-
       })
-
     })
 
+    it(`should throw a NotFound error if you try to update a non-existant
+      document`, function() {
+
+      const table     = 'test'
+      const params    = { foo: 'bar', bar: 'baz' }
+      const id        = '4321'
+      const sql_regex = /^UPDATE `test` SET .*/
+
+      mysql.query = (actual_sql, actual_params, cb) => {
+        expect(actual_sql).to.match(sql_regex)
+        expect(actual_params).to.deep.eql([params, id])
+        cb(null, { affectedRows: 0 })
+      }
+
+      return store.update(table, id, params)
+      .then((result) => { expect(result).to.eql(id) })
+      .catch(Err.NotFound, e => { expect(e.status).eql(404) })
+      .catch(() => { throw new Error('wtf something failed!') })
+    })
   })
 
 

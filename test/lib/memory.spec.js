@@ -5,6 +5,7 @@
 const R           = require('ramda')
 const { expect }  = require('chai')
 const MemoryStore = require('../../lib/memory')
+const Err         = require('../../lib/error')
 
 
 describe('lib/memory-store.js', function() {
@@ -37,6 +38,19 @@ describe('lib/memory-store.js', function() {
         expect(result.foo).to.eql(data.foo)
         expect(result.boo).to.eql('hoo')
       })
+    })
+
+    it(`should throw a NotFound error if you try to update a non-existant
+      document`, () => {
+
+      const bucket    = 'test'
+      const data      = { id : '1', foo: 'bar', boo: 'fuck' }
+      const state     = { [bucket] : {} }
+      const tempStore = MemoryStore(state)
+
+      return tempStore.update(bucket, data.id, { boo : 'hoo' })
+      .then(() => { throw new Error('should not have gotten here, noob') })
+      .catch(Err.NotFound, e => { expect(e.status).eql(404) })
     })
   })
 
