@@ -306,23 +306,15 @@ describe('lib/couchdb', function() {
 
       const PROJECTION = [ 'username' ]
       const expected   = 'Too many records. Found 2 records in ' +
-                         '`kuss-test-db` where `side` = "villain"'
+                         '`couchdb`.`kuss-test-db` where `side` = "villain"'
 
       return insertAllTestDocs(couchdb)
-
       .then(() => couchdb.findOneBy(DB_NAME, PROJECTION, 'side', 'villain'))
-
       .then(() => { throw new Error('Did not catch invalid response') })
-
-      .catch((e) => {
-
-        demand(e.name).eql('TooManyRecords')
-        demand(e.message).eql(expected)
-
-      })
+      .catch(Err.TooManyRecords, e => { demand(e.message).eql(expected) })
+      .catch(() => { throw new Error('should not get here noob') })
 
     })
-
 
   })
 

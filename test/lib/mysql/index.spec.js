@@ -468,9 +468,7 @@ describe('lib/mysql', function() {
       })
 
 
-    it('should throw an error if the query returns more than one item',
-      function() {
-
+    it('should throw an error if the query returns more than one item', () => {
         const table        = 'test'
         const projection   = [ 'foo' , 'bar' ]
         const params       = [ 'run away, run away' ]
@@ -478,33 +476,24 @@ describe('lib/mysql', function() {
           + ' FROM `test`'
           + ' WHERE `foo` = ? '
 
-
         mysql.query = (actual_sql, actual_params, cb) => {
-
           expect(actual_sql).to.eql(expected_sql)
           expect(actual_params).to.deep.eql(params)
-
           cb(null, [ { test: 'pass' }, { test: 'fail' } ])
         }
 
         return store.findOneBy(table, projection, projection[0], params[0])
-
-          .then(() => { throw new Error('Unexpected success') })
-
-          .catch((e) => {
-            if (e.name === 'AssertionError') throw e
-
-            expect(e.name).to.eql('TooManyRecords')
-            expect(e.message).to.eql(
-              'Too many records. ' +
-              'Found 2 records in `test` ' +
-              'where `foo` = "run away, run away"'
-            )
-
-          })
+        .then(() => { throw new Error('Unexpected success') })
+        .catch(Err.TooManyRecords, e => {
+          expect(e.status).eql(500)
+          expect(e.message).to.eql(
+            'Too many records. ' +
+            'Found 2 records in `mysql`.`test` ' +
+            'where `foo` = "run away, run away"'
+          )
+        })
 
       })
-
 
   })
 
