@@ -5,6 +5,7 @@
 const R           = require('ramda')
 const { expect }  = require('chai')
 const MemoryStore = require('../../lib/memory')
+const Err         = require('../../lib/error')
 
 
 describe('lib/memory-store.js', function() {
@@ -37,6 +38,19 @@ describe('lib/memory-store.js', function() {
         expect(result.foo).to.eql(data.foo)
         expect(result.boo).to.eql('hoo')
       })
+    })
+
+    it(`should throw a NotFound error if you try to update a non-existant
+      document`, () => {
+
+      const bucket    = 'test'
+      const data      = { id : '1', foo: 'bar', boo: 'fuck' }
+      const state     = { [bucket] : {} }
+      const tempStore = MemoryStore(state)
+
+      return tempStore.update(bucket, data.id, { boo : 'hoo' })
+      .then(() => { throw new Error('should not have gotten here, noob') })
+      .catch(Err.NotFound, e => { expect(e.status).eql(404) })
     })
   })
 
@@ -202,20 +216,16 @@ describe('lib/memory-store.js', function() {
       const proj = [ 'bar_key' ]
 
       return store.insert(bucket, data1)
-        .then(() => store.insert(bucket, data2))
-
-        .then(() => store.findOneBy(bucket, proj, 'bar_key', 'blah'))
-
-        .then((x) => {
-
-          x.must.be.an.object()
-          x.must.include('blah')
-
-        })
+      .then(() => store.insert(bucket, data2))
+      .then(() => store.findOneBy(bucket, proj, 'bar_key', 'blah'))
+      .then((x) => {
+        x.must.be.an.object()
+        x.must.include('blah')
+      })
 
     })
 
-    it('should return an error if it returns more than one obj', function() {
+    it('should throw TooManyRecords if it returns more than one obj', () => {
 
       const bucket = 'test'
       const data1 = { foo: 'random', bar_key: 'blah' }
@@ -224,21 +234,11 @@ describe('lib/memory-store.js', function() {
       const proj = [ 'bar_key' ]
 
       return store.insert(bucket, data1)
-        .then(() => store.insert(bucket, data2))
-        .then(() => store.insert(bucket, data3))
-
-        .then(() => store.findOneBy(bucket, proj, 'bar_key', 'derp'))
-
-        .then((x) => {
-
-          console.log(x)
-
-        })
-        .catch((e) => {
-
-          (e.name).must.eql('TooManyRecords')
-
-        })
+      .then(() => store.insert(bucket, data2))
+      .then(() => store.insert(bucket, data3))
+      .then(() => store.findOneBy(bucket, proj, 'bar_key', 'derp'))
+      .then(() => { throw new Error('should not get here noob!') })
+      .catch(Err.TooManyRecords, e => { (e.status).must.eql(500) })
 
     })
 

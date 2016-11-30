@@ -2,9 +2,11 @@
 /* eslint no-magic-numbers: 0 */
 /* eslint 'max-len': [ 'error', 200 ] */
 
+const R          = require('ramda')
 const { expect } = require('chai')
 
 const MySqlStore = require('../../../lib/mysql')
+const Err        = require('../../../lib/error')
 
 describe('lib/mysql', function() {
 
@@ -63,22 +65,35 @@ describe('lib/mysql', function() {
       const sql_regex = /^UPDATE `test` SET .*/
 
       mysql.query = (actual_sql, actual_params, cb) => {
-
         expect(actual_sql).to.match(sql_regex)
         expect(actual_params).to.deep.eql([params, id])
-
         cb(null, { affectedRows: 1 })
-
       }
 
       return store.update(table, id, params).then((result) => {
-
         expect(result).to.eql(id)
-
       })
-
     })
 
+    it(`should throw a NotFound error if you try to update a non-existant
+      document`, function() {
+
+      const table     = 'test'
+      const params    = { foo: 'bar', bar: 'baz' }
+      const id        = '4321'
+      const sql_regex = /^UPDATE `test` SET .*/
+
+      mysql.query = (actual_sql, actual_params, cb) => {
+        expect(actual_sql).to.match(sql_regex)
+        expect(actual_params).to.deep.eql([params, id])
+        cb(null, { affectedRows: 0 })
+      }
+
+      return store.update(table, id, params)
+      .then((result) => { expect(result).to.eql(id) })
+      .catch(Err.NotFound, e => { expect(e.status).eql(404) })
+      .catch(() => { throw new Error('wtf something failed!') })
+    })
   })
 
 
@@ -241,7 +256,7 @@ describe('lib/mysql', function() {
   describe('::upsert', function() {
 
 
-    it('should execute an upsert query on the given table', function() {
+    it('should insert a record in the given table', function() {
 
       const table  = 'test'
       const params = { foo: 'bar', bar: 'baz', baz: 'boo' }
@@ -271,6 +286,56 @@ describe('lib/mysql', function() {
 
     })
 
+    it('should update a record on the given table', function() {
+
+      const table  = 'test'
+      const params = { foo: 'bar', bar: 'baz', baz: 'boo' }
+      const props  = [ 'baz', 'foo' ]
+      const sql_regex = new RegExp(
+        "^INSERT INTO `test` SET \\? " +
+        "ON DUPLICATE KEY UPDATE " +
+        "`baz`=VALUES\\(`baz`\\), `foo`=VALUES\\(`foo`\\) " +
+                            "-- [a-f0-9]{29}"
+      )
+
+      mysql.query = (actual_sql, actual_params, cb) => {
+        if (R.test(/^SELECT/g, actual_sql)) return cb(null, [{id:9}])
+        expect(actual_sql).to.match(sql_regex)
+        expect(actual_params).to.deep.eql(params)
+        cb(null, { affectedRows: 1 })
+      }
+
+      return store.upsert(table, props, params).then((result) => {
+        expect(result).to.eql(9)
+      })
+
+    })
+
+    it('should throw upsert failed', function() {
+
+      const table  = 'test'
+      const params = { foo: 'bar', bar: 'baz', baz: 'boo' }
+      const props  = [ 'baz', 'foo' ]
+      const sql_regex = new RegExp(
+        "^INSERT INTO `test` SET \\? " +
+        "ON DUPLICATE KEY UPDATE " +
+        "`baz`=VALUES\\(`baz`\\), `foo`=VALUES\\(`foo`\\) " +
+                            "-- [a-f0-9]{29}"
+      )
+
+      mysql.query = (actual_sql, actual_params, cb) => {
+        expect(actual_sql).to.match(sql_regex)
+        expect(actual_params).to.deep.eql(params)
+        cb(null, {})
+      }
+
+      return store.upsert(table, props, params)
+      .then(() => { throw new Error('should not get here noob') })
+      .catch(e => {
+        expect(e.message).to.match(/^Upsert Failed/)
+      })
+
+    })
 
   })
 
@@ -454,9 +519,7 @@ describe('lib/mysql', function() {
       })
 
 
-    it('should throw an error if the query returns more than one item',
-      function() {
-
+    it('should throw an error if the query returns more than one item', () => {
         const table        = 'test'
         const projection   = [ 'foo' , 'bar' ]
         const params       = [ 'run away, run away' ]
@@ -464,33 +527,24 @@ describe('lib/mysql', function() {
           + ' FROM `test`'
           + ' WHERE `foo` = ? '
 
-
         mysql.query = (actual_sql, actual_params, cb) => {
-
           expect(actual_sql).to.eql(expected_sql)
           expect(actual_params).to.deep.eql(params)
-
           cb(null, [ { test: 'pass' }, { test: 'fail' } ])
         }
 
         return store.findOneBy(table, projection, projection[0], params[0])
-
-          .then(() => { throw new Error('Unexpected success') })
-
-          .catch((e) => {
-            if (e.name === 'AssertionError') throw e
-
-            expect(e.name).to.eql('TooManyRecords')
-            expect(e.message).to.eql(
-              'Too many records. ' +
-              'Found 2 records in `test` ' +
-              'where `foo` = "run away, run away"'
-            )
-
-          })
+        .then(() => { throw new Error('Unexpected success') })
+        .catch(Err.TooManyRecords, e => {
+          expect(e.status).eql(500)
+          expect(e.message).to.eql(
+            'Too many records. ' +
+            'Found 2 records in `mysql`.`test` ' +
+            'where `foo` = "run away, run away"'
+          )
+        })
 
       })
-
 
   })
 
