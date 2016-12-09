@@ -198,14 +198,11 @@ describe('lib/couchdb', function() {
        _id and _rev keys. if these two keys don't exist, create the document
        in the bucket`, function() {
 
-      return couchdb.insert(DB_NAME, { id: '1', name: 'mat' })
-      .then(couchdb.getById(DB_NAME))
-      .then((res) =>
-        couchdb.bulk_upsert(DB_NAME, [
-          { _id: res._id, _rev: res._rev, name: 'matt' }
-        , { _id: '2', name: 'jon' }
-        ])
-      )
+      return couchdb.insert(DB_NAME, { id: '1', first: 'mat', last: 'chuang' })
+      .then(() => couchdb.bulk_upsert(DB_NAME, ['id'], [
+        { first: 'matt', last: 'chuang' }
+      , { _id: '2', first: 'jon', last: 'lee' }
+      ]))
       .then(() => couchdb.getAll(DB_NAME))
       .then((res) => {
 
@@ -215,8 +212,8 @@ describe('lib/couchdb', function() {
         )(res.rows)
 
         demand(res.rows).have.length(2)
-        demand(map['1'].name).equal('matt')
-        demand(map['2'].name).equal('jon')
+        demand(map['1'].first).equal('matt')
+        demand(map['2'].first).equal('jon')
       })
 
     })
