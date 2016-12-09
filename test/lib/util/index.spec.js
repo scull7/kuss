@@ -34,4 +34,29 @@ describe('lib/util/index.js', function() {
 
   })
 
+
+  describe('::renameProp', function() {
+
+    const obj = { id: 1, foo: 'bar' }
+
+    it('should rename a property of a given object', () => {
+
+      const new_obj = Util.renameProp('id', '_id', obj)
+
+      const expected = { '_id': 1, foo: 'bar' }
+
+      expect(new_obj).to.eql(expected)
+
+    })
+
+    it('should bypass if key doesn\'t exist', () => {
+
+      const new_obj = Util.renameProp('a', 'b', obj)
+
+      expect(new_obj).to.eql(obj)
+
+    })
+
+  })
+
 })
