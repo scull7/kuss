@@ -194,7 +194,7 @@ describe('lib/couchdb', function() {
 
   describe('::bulk_upsert', function() {
 
-    it.only(`should update a list of documents in the given bucket based on the
+    it(`should update a list of documents in the given bucket based on the
        _id and _rev keys. if these two keys don't exist, create the document
        in the bucket`, function() {
 
@@ -208,13 +208,13 @@ describe('lib/couchdb', function() {
       )
       .then(() => couchdb.getAll(DB_NAME))
       .then((res) => {
-        demand(res.rows).have.length(2)
 
         const map = R.compose(
           R.mergeAll
         , R.map((row) => ({ [row.id] : row.doc }))
         )(res.rows)
 
+        demand(res.rows).have.length(2)
         demand(map['1'].name).equal('matt')
         demand(map['2'].name).equal('jon')
       })
