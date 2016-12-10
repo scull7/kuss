@@ -355,9 +355,11 @@ describe('lib/mysql', function() {
         "^ SELECT `id` FROM `bulk_upsert_test_table`" +
         " WHERE `a` = [0-9]+ AND `b` = [0-9]+ "
       )
+      // TODO: improve this Regex
       const bulkUpdateSqlRegex = new RegExp(
         "[\s\S]* VALUES \(1,3,1\) ON DUPLICATE KEY UPDATE [\s\S]*"
       )
+      // TODO: improve this Regex
       const bulkInsertSqlRegex = new RegExp(
         "^ INSERT INTO `bulk_upsert_test_table`[\s\S]*"
       )
