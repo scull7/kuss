@@ -15,9 +15,9 @@ describe('lib/mysql', function() {
 
   beforeEach(function() {
     mysql = {
-      query: null
-      , escapeId: (x) => `\`${x}\``
-      , escape: (x) => `'${x}'`
+      query    : null
+    , escapeId : (x) => `\`${x}\``
+    , escape   : (x) => `'${x}'`
     }
     store = MySqlStore(mysql)
   })
@@ -340,6 +340,53 @@ describe('lib/mysql', function() {
   })
 
 
+  describe('::bulk_upsert', function() {
+
+    it('should insert and update records in the given table', function(done) {
+
+      const table = 'bulk_upsert_test_table'
+      const keys = [ 'a', 'b' ]
+      const params_list = [
+        { a: 1, b: 3 }
+      , { a: 2, b: 4 }
+      ]
+
+      const findWhereEqSqlRegex = new RegExp(
+        "^ SELECT `id` FROM `bulk_upsert_test_table`" +
+        " WHERE `a` = [0-9]+ AND `b` = [0-9]+ "
+      )
+      const bulkUpdateSqlRegex = new RegExp(
+        "[\s\S]* VALUES \(1,3,1\) ON DUPLICATE KEY UPDATE [\s\S]*"
+      )
+      const bulkInsertSqlRegex = new RegExp(
+        "^ INSERT INTO `bulk_upsert_test_table`[\s\S]*"
+      )
+
+      mysql.query = (actual_sql, actual_params, cb) => {
+
+        if (findWhereEqSqlRegex.test(actual_sql)) {
+          if (actual_sql.includes("`a` = 1")) {
+            return cb(null, [{ id: 1 }])
+          }
+          return cb(null, [])
+        } else if (bulkUpdateSqlRegex.test(actual_sql)) {
+          return cb(null, [])
+        } else if (bulkInsertSqlRegex.test(actual_sql)) {
+          return cb(null, [])
+        }
+
+        cb(new Error('bulk_upsert test failed'))
+      }
+
+      store.bulk_upsert(table, keys, params_list)
+      .then(() => done())
+      .catch(done)
+
+    })
+
+  })
+
+
   describe('::getById', function() {
 
 
@@ -433,7 +480,6 @@ describe('lib/mysql', function() {
       const expected_sql = ' SELECT `foo`, `bar`'
         + ' FROM `test`'
         + ' WHERE `foo` = ? '
-      
 
       mysql.query = (actual_sql, actual_params, cb) => {
 
