@@ -378,6 +378,24 @@ describe('lib/mysql', function() {
         }
 
         cb(new Error('bulk_upsert test failed'))
+
+      }
+
+      store.bulk_upsert(table, keys, params_list)
+      .then(() => done())
+      .catch(done)
+
+    })
+
+
+    it('should not do anything in the given table', function(done) {
+
+      const table = 'bulk_upsert_test_table'
+      const keys = [ 'a', 'b' ]
+      const params_list = []
+
+      mysql.query = (actual_sql, actual_params, cb) => {
+        cb(new Error('mysql.query shouldn\'t be called'))
       }
 
       store.bulk_upsert(table, keys, params_list)
