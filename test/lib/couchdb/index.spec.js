@@ -200,8 +200,8 @@ describe('lib/couchdb', function() {
 
       return couchdb.insert(DB_NAME, { id: '1', first: 'mat', last: 'chuang' })
       .then(() => couchdb.bulk_upsert(DB_NAME, ['id'], [
-        { first: 'matt', last: 'chuang' }
-      , { _id: '2', first: 'jon', last: 'lee' }
+        { id: '1', first: 'matt', last: 'chuang' }
+      , { id: '2', first: 'jon', last: 'lee' }
       ]))
       .then(() => couchdb.getAll(DB_NAME))
       .then((res) => {
