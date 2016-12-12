@@ -344,8 +344,30 @@ describe('lib/couchdb', function() {
 
     })
 
-
   })
 
+
+  describe('::del', function() {
+
+    it(`should delete document by given document\'s document and revision
+    identifiers`, function() {
+
+      return insertAllTestDocs(couchdb)
+
+      .then(() => couchdb.findWhereEq(DB_NAME, {
+        predicates: { username: 'lex_luthor' }
+      }))
+
+      .then((list) => couchdb.del(DB_NAME, list[0]._id, list[0]._rev))
+
+      .then(() => couchdb.findWhereEq(DB_NAME, {
+        predicates: { username: 'lex_luthor' }
+      }))
+
+      .then((list) => demand(list).to.be.empty())
+
+    })
+
+  })
 
 })

@@ -16,6 +16,42 @@ describe('lib/memory-store.js', function() {
     store = MemoryStore()
   })
 
+  describe('::del', function() {
+
+    it(`should delete a record with given identifier`, function() {
+
+      const bucket    = 'test'
+      const data1     = { id : '1', foo: 'bar', boo: 'fuck' }
+      const state     = { [bucket] : { [data1.id] : data1 } }
+      const tempStore = MemoryStore(state)
+
+      return tempStore.del(bucket, data1.id)
+
+      .then(() => tempStore.getById(bucket, data1.id))
+
+      .then((result) => {
+        expect(result).to.be.undefined
+      })
+    })
+
+    it(`should throw NotFound error if you try to delete a non-existant
+      record`, function() {
+
+      const bucket    = 'test'
+      const data1     = { id : '1', foo: 'bar', boo: 'fuck' }
+      const state     = { [bucket] : { [data1.id] : data1 } }
+      const tempStore = MemoryStore(state)
+
+      tempStore.del(bucket, '2')
+      .catch((err) => {
+        expect(err.name).to.be.eq('NotFound')
+        expect(err.status).to.be.eq(404)
+      })
+
+    })
+
+  })
+
 
   describe('::update', function() {
 
