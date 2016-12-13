@@ -372,8 +372,29 @@ describe('lib/couchdb', function() {
 
     })
 
-
   })
 
+
+  describe('::deleteById', function() {
+
+    it(`should delete document by given document\'s identifier`, function() {
+
+      return insertAllTestDocs(couchdb)
+
+      .then(() => couchdb.findWhereEq(DB_NAME, {
+        predicates: { username: 'lex_luthor' }
+      }))
+
+      .then((list) => couchdb.deleteById(DB_NAME, list[0]._id))
+
+      .then(() => couchdb.findWhereEq(DB_NAME, {
+        predicates: { username: 'lex_luthor' }
+      }))
+
+      .then((list) => demand(list).to.be.empty())
+
+    })
+
+  })
 
 })
