@@ -130,7 +130,6 @@ describe('lib/memory-store.js', function() {
 
   describe('::upsert', function() {
 
-
     it('should insert a new value', function() {
 
       const bucket = 'test'
@@ -179,6 +178,7 @@ describe('lib/memory-store.js', function() {
 
     })
 
+
     it ('should throw an error when invalid bucket', function() {
 
       const bucket = 'test'
@@ -213,6 +213,7 @@ describe('lib/memory-store.js', function() {
 
   })
 
+
   describe('::projectAll', function() {
 
     it('should return proper projected keys', function() {
@@ -242,6 +243,7 @@ describe('lib/memory-store.js', function() {
 
   })
 
+
   describe('::findOneBy', function() {
 
     it('should get one item by prop and value', function() {
@@ -260,6 +262,7 @@ describe('lib/memory-store.js', function() {
       })
 
     })
+
 
     it('should throw TooManyRecords if it returns more than one obj', () => {
 
@@ -395,6 +398,7 @@ describe('lib/memory-store.js', function() {
 
     })
 
+
     it('should sort the results with multiple sort keys', function() {
 
       const request = {
@@ -425,6 +429,67 @@ describe('lib/memory-store.js', function() {
       .then(rows => {
         (R.equals(expected, rows)).must.be.true()
         rows.must.have.length(15)
+      })
+
+    })
+
+  })
+
+
+  describe('::bulk_upsert', function() {
+
+    it('should insert a new value to existing memory objects', function() {
+
+      const bucket = 'bulk_upsert_test_bucket'
+      const data   = { foo: 'bar', boo: 'mar' }
+      const keys   = [ 'boo' ]
+
+      return store.bulk_upsert(bucket, keys, [ data ])
+
+
+      .then(() => store.getAll(bucket))
+
+      .then((list) => {
+
+        expect(list).to.have.length(1)
+
+        expect(R.head(list)).to.eql(data)
+
+      })
+
+    })
+
+
+    it('should update existing values in existing memory objects', function() {
+
+      const bucket         = 'bulk_upsert_test_bucket'
+      const data_existing1 = { first: 'mat'  , last: 'chuang' }
+      const data_existing2 = { first: 'jo'   , last: 'lee' }
+      const data_new1      = { first: 'matt' , last: 'chuang' }
+      const data_new2      = { first: 'jon'  , last: 'lee' }
+      const keys           = [ 'last' ]
+
+
+      return store.insert(bucket, data_existing1)
+
+      .then(() => store.insert(bucket, data_existing2))
+
+      .then(() => store.bulk_upsert(bucket, keys, [ data_new1, data_new2 ]))
+
+      .then(() => store.getAll(bucket))
+
+      .then((list) => {
+
+        expect(list).to.have.length(2)
+
+        const map = R.compose(
+          R.mergeAll
+        , R.map((obj) => ({ [obj.last] : obj }))
+        )(list)
+
+        expect(map.chuang.first).to.equal('matt')
+        expect(map.lee.first).to.equal('jon')
+
       })
 
     })
