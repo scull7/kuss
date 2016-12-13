@@ -16,7 +16,7 @@ describe('lib/memory-store.js', function() {
     store = MemoryStore()
   })
 
-  describe('::del', function() {
+  describe('::deleteById', function() {
 
     it(`should delete a record with given identifier`, function() {
 
@@ -25,7 +25,7 @@ describe('lib/memory-store.js', function() {
       const state     = { [bucket] : { [data1.id] : data1 } }
       const tempStore = MemoryStore(state)
 
-      return tempStore.del(bucket, data1.id)
+      return tempStore.deleteById(bucket, data1.id)
 
       .then(() => tempStore.getById(bucket, data1.id))
 
@@ -42,7 +42,7 @@ describe('lib/memory-store.js', function() {
       const state     = { [bucket] : { [data1.id] : data1 } }
       const tempStore = MemoryStore(state)
 
-      tempStore.del(bucket, '2')
+      tempStore.deleteById(bucket, '2')
       .catch((err) => {
         expect(err.name).to.be.eq('NotFound')
         expect(err.status).to.be.eq(404)
