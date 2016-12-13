@@ -347,10 +347,9 @@ describe('lib/couchdb', function() {
   })
 
 
-  describe('::del', function() {
+  describe('::deleteById', function() {
 
-    it(`should delete document by given document\'s document and revision
-    identifiers`, function() {
+    it(`should delete document by given document\'s identifier`, function() {
 
       return insertAllTestDocs(couchdb)
 
@@ -358,7 +357,7 @@ describe('lib/couchdb', function() {
         predicates: { username: 'lex_luthor' }
       }))
 
-      .then((list) => couchdb.del(DB_NAME, list[0]._id, list[0]._rev))
+      .then((list) => couchdb.deleteById(DB_NAME, list[0]._id))
 
       .then(() => couchdb.findWhereEq(DB_NAME, {
         predicates: { username: 'lex_luthor' }
