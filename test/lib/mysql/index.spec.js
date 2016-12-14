@@ -8,6 +8,12 @@ const { expect } = require('chai')
 const MySqlStore = require('../../../lib/mysql')
 const Err        = require('../../../lib/error')
 
+
+// Remove new line characters and replace multiple spaces with a single space.
+// :: String -> String
+const _pruneSql = (str) => str.replace(/\n/g, '').replace(/\s+/g, ' ')
+
+
 describe('lib/mysql', function() {
 
   let mysql = null
@@ -433,7 +439,6 @@ describe('lib/mysql', function() {
 
       })
 
-
   })
 
 
@@ -611,6 +616,35 @@ describe('lib/mysql', function() {
         })
 
       })
+
+  })
+
+
+  describe('::deleteById', function() {
+
+
+    it('should soft delete row with given identifier', function() {
+      const table        = 'test'
+      const params       = [ '1' ]
+      const expected_sql = _pruneSql(`
+        DELETE FROM \`${table}\`
+        WHERE \`${table}\`.\`id\` = ?
+      `)
+
+      mysql.query = (actual_sql, actual_params, cb) => {
+        actual_sql = _pruneSql(actual_sql)
+
+        expect(actual_sql).to.eql(expected_sql)
+        expect(actual_params).to.deep.eql(params)
+        cb(null, true)
+      }
+
+      return store.deleteById(table, '1')
+      .then((result) => {
+        expect(result).to.be.true
+      })
+
+    })
 
   })
 
