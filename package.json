@@ -41,7 +41,7 @@
     "got-couch": "^1.1.2",
     "mysql2": "^1.1.0",
     "on-finished": "^2.3.0",
-    "pimp-my-sql": "0.3.0",
+    "pimp-my-sql": "0.3.1",
     "ramda": "^0.22.1",
     "request": "^2.75.0",
     "simple-backoff": "^1.0.0",
