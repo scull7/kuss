@@ -620,7 +620,7 @@ describe('lib/mysql', function() {
   })
 
 
-  describe.only('::deleteById', function() {
+  describe('::deleteById', function() {
 
 
     it('should soft delete row with given identifier', function() {
