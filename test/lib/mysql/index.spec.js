@@ -620,14 +620,13 @@ describe('lib/mysql', function() {
   })
 
 
-  describe('::deleteById', function() {
+  describe.only('::deleteById', function() {
 
 
     it('should soft delete row with given identifier', function() {
       const table        = 'test'
       const params       = [ '1' ]
-      const expected_sql = _pruneSql(`
-        DELETE FROM \`${table}\`
+      const expected_sql = _pruneSql(`DELETE FROM \`${table}\`
         WHERE \`${table}\`.\`id\` = ?
       `)
 
