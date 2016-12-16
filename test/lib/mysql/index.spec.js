@@ -625,22 +625,56 @@ describe('lib/mysql', function() {
 
     it('should soft delete row with given identifier', function() {
       const table        = 'test'
+
       const params       = [ '1' ]
-      const expected_sql = _pruneSql(`DELETE FROM \`${table}\`
+
+      const select_query = `SELECT * FROM \`${table}\` WHERE \`id\` = ? `
+
+      const delete_query = _pruneSql(`DELETE FROM \`${table}\`
         WHERE \`${table}\`.\`id\` = ?
       `)
+
+      let step = 0;
 
       mysql.query = (actual_sql, actual_params, cb) => {
         actual_sql = _pruneSql(actual_sql)
 
-        expect(actual_sql).to.eql(expected_sql)
-        expect(actual_params).to.deep.eql(params)
-        cb(null, true)
+        if( step === 0 ) {
+          expect(actual_sql).to.be.deep.eql(select_query)
+          expect(actual_params).to.deep.eql(params)
+          step++
+          cb(null, [{id: 1}])
+
+        } else if( step === 1) {
+          expect(actual_sql).to.eql(delete_query)
+          expect(actual_params).to.deep.eql(params)
+
+          step++
+          cb(null, true)
+
+        } else {
+          throw new Error('Unexpected call to mysql.query')
+        }
       }
 
       return store.deleteById(table, '1')
       .then((result) => {
         expect(result).to.be.true
+      })
+
+    })
+
+
+    it('should throw a NotFound error', function() {
+      const table        = 'test'
+      const params       = '666'
+
+      mysql.query = (actual_sql, actual_params, cb) => cb(null, [])
+
+      return store.deleteById(table, params)
+      .catch((err) => {
+        expect(err.name).to.be.eql('NotFound')
+        expect(err.status).to.be.eql(404)
       })
 
     })
