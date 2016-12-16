@@ -8,6 +8,12 @@ const { expect } = require('chai')
 const MySqlStore = require('../../../lib/mysql')
 const Err        = require('../../../lib/error')
 
+
+// Remove new line characters and replace multiple spaces with a single space.
+// :: String -> String
+const _pruneSql = (str) => str.replace(/\n/g, '').replace(/\s+/g, ' ')
+
+
 describe('lib/mysql', function() {
 
   let mysql = null
@@ -433,7 +439,6 @@ describe('lib/mysql', function() {
 
       })
 
-
   })
 
 
@@ -611,6 +616,68 @@ describe('lib/mysql', function() {
         })
 
       })
+
+  })
+
+
+  describe('::deleteById', function() {
+
+
+    it('should soft delete row with given identifier', function() {
+      const table        = 'test'
+
+      const params       = [ '1' ]
+
+      const select_query = `SELECT * FROM \`${table}\` WHERE \`id\` = ? `
+
+      const delete_query = _pruneSql(`DELETE FROM \`${table}\`
+        WHERE \`${table}\`.\`id\` = ?
+      `)
+
+      let step = 0;
+
+      mysql.query = (actual_sql, actual_params, cb) => {
+        actual_sql = _pruneSql(actual_sql)
+
+        if( step === 0 ) {
+          expect(actual_sql).to.be.deep.eql(select_query)
+          expect(actual_params).to.deep.eql(params)
+          step++
+          cb(null, [{id: 1}])
+
+        } else if( step === 1) {
+          expect(actual_sql).to.eql(delete_query)
+          expect(actual_params).to.deep.eql(params)
+
+          step++
+          cb(null, true)
+
+        } else {
+          throw new Error('Unexpected call to mysql.query')
+        }
+      }
+
+      return store.deleteById(table, '1')
+      .then((result) => {
+        expect(result).to.be.true
+      })
+
+    })
+
+
+    it('should throw a NotFound error', function() {
+      const table        = 'test'
+      const params       = '666'
+
+      mysql.query = (actual_sql, actual_params, cb) => cb(null, [])
+
+      return store.deleteById(table, params)
+      .catch((err) => {
+        expect(err.name).to.be.eql('NotFound')
+        expect(err.status).to.be.eql(404)
+      })
+
+    })
 
   })
 
