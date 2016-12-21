@@ -358,7 +358,7 @@ describe('lib/mysql', function() {
       ]
 
       const findWhereEqSqlRegex = new RegExp(
-        "^ SELECT `id` FROM `bulk_upsert_test_table`" +
+        "^ SELECT \\* FROM `bulk_upsert_test_table`" +
         " WHERE `a` = [0-9]+ AND `b` = [0-9]+ "
       )
       // TODO: improve this Regex
@@ -634,19 +634,19 @@ describe('lib/mysql', function() {
         WHERE \`${table}\`.\`id\` = ?
       `)
 
-      let step = 0;
+      let step = 0
 
       mysql.query = (actual_sql, actual_params, cb) => {
-        actual_sql = _pruneSql(actual_sql)
+        const _actual_sql = _pruneSql(actual_sql)
 
-        if( step === 0 ) {
-          expect(actual_sql).to.be.deep.eql(select_query)
+        if (0 === step) {
+          expect(_actual_sql).to.be.deep.eql(select_query)
           expect(actual_params).to.deep.eql(params)
           step++
           cb(null, [{id: 1}])
 
-        } else if( step === 1) {
-          expect(actual_sql).to.eql(delete_query)
+        } else if (1 === step) {
+          expect(_actual_sql).to.eql(delete_query)
           expect(actual_params).to.deep.eql(params)
 
           step++
