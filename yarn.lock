@@ -1285,9 +1285,9 @@ pify@^2.0.0:
   version "2.3.0"
   resolved "https://registry.yarnpkg.com/pify/-/pify-2.3.0.tgz#ed141a6ac043a849ea588498e7dca8b15330e90c"
 
-pimp-my-sql@^0.2.0:
-  version "0.2.0"
-  resolved "https://registry.yarnpkg.com/pimp-my-sql/-/pimp-my-sql-0.2.0.tgz#8b6bb78e0adf498465a07455eba4f8afdb140429"
+pimp-my-sql@0.3.1:
+  version "0.3.1"
+  resolved "https://registry.yarnpkg.com/pimp-my-sql/-/pimp-my-sql-0.3.1.tgz#cb9c17406e78eefae74034db6bbd18bd498a9eb8"
   dependencies:
     bluebird "^3.4.1"
     chalk "^1.1.3"
