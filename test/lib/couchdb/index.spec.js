@@ -1,6 +1,8 @@
 /*eslint-env node, mocha*/
 /*eslint max-nested-callbacks: ["error", 5]*/
 /*eslint-disable  no-magic-numbers*/
+/*eslint-disable  no-throw-literal*/
+/*eslint-disable max-len*/
 
 const R        = require('ramda')
 const Bluebird = require('bluebird')
@@ -265,6 +267,17 @@ describe('lib/couchdb', function() {
       .then(() => couchdb.update(DB_NAME, 'dne', { has_cape: 'uhh, what?' }))
       .then(() => { throw new Error('Update a non-existant doc succeeded!') })
       .catch(Err.NotFound, e => { demand(e.status).eql(404) })
+    )
+
+    it(`should throw a StorageConflict if version conflict occurs`, () =>
+      CouchDB({}, () => Bluebird.resolve({
+        get    : () => Bluebird.resolve({})
+      , create : () => () => { throw { message : 'Response code 409 (Conflict)'}}
+      }))
+      .then(couchDB => couchDB.update(DB_NAME, 'dne', { has_cape: 'uhh, what?' }))
+      .then(() => { throw new Error('Update a non-existant doc succeeded!') })
+      .catch(Err.StorageConflict, e => { demand(e.status).eql(409) })
+      .catch(() => { throw new Error('The wrong thing went wrong!') })
     )
 
     it('should throw a driver error if the database does not exist', () =>
