@@ -1,7 +1,7 @@
 {
   "name": "kuss",
-  "version": "0.9.6",
-  "description": "Combined Universal Storage Service",
+  "version": "0.9.7",
+  "description": "Kombined Universal Storage Service",
   "main": "index.js",
   "scripts": {
     "test": "make test"
@@ -38,7 +38,7 @@
     "bluebird": "^3.4.6",
     "elasticsearch": "^11.0.1",
     "generic-pool": "^3.1.2",
-    "got-couch": "^1.1.2",
+    "got-couch": "^1.2.0",
     "mysql2": "^1.1.0",
     "on-finished": "^2.3.0",
     "pimp-my-sql": "0.3.1",
