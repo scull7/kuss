@@ -73,7 +73,7 @@ function isNot404(err) {
 
   debug("isNot404 - ERROR: %o", err)
 
-  return !err.message.test(/\(404\)/)
+  return !(/\(404\)/.test(err.message))
 
 }
 
