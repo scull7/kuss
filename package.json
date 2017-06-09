@@ -46,7 +46,7 @@
     "ramda": "^0.22.1",
     "request": "^2.75.0",
     "simple-backoff": "^1.0.0",
-    "uuid": "^3.0.0"
+    "uuid": "^3.0.1"
   },
   "devDependencies": {
     "chai": "^3.5.0",
