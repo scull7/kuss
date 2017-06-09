@@ -73,6 +73,10 @@ function isNot404(err) {
 
   debug("isNot404 - ERROR: %o", err)
 
+  const is_404 = /\(404\)/.test(err.message)
+
+  debug('isNot404 - Result: %o, Message: %s', is_404, err.message)
+
   return !(/\(404\)/.test(err.message))
 
 }
@@ -109,6 +113,8 @@ describe.only('lib/couchbase', function () {
       manager.createBucket(DB_NAME, {
         saslPassword: DB_CONN.buckets[DB_NAME].password
       })
+
+      .delay(1000)
 
       .then(() => Connector(DB_CONN))
 
