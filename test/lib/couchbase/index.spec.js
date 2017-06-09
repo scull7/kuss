@@ -13,7 +13,7 @@ const Manager   = require('../../../lib/couchbase/manager.js')
 
 const DB_NAME   = 'kuss-test-db'
 const DB_CONN   = {
-  url      : 'http://localhost'
+  url      : 'couchbase://localhost'
 , username : 'Administrator'
 , password : 'password'
 }
