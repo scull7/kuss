@@ -3,6 +3,7 @@
 /*eslint-disable  no-magic-numbers*/
 /*eslint-disable  no-throw-literal*/
 
+const debug     = require('debug')('kuss:couchbase:test:index')
 const R         = require('ramda')
 const Bluebird  = require('bluebird')
 const demand    = require('must')
@@ -16,6 +17,9 @@ const DB_CONN   = {
   url      : 'couchbase://localhost'
 , username : 'Administrator'
 , password : 'password'
+, buckets: {
+    'kuss-test-db': { password: 'foo-bar' }
+  }
 }
 
 
@@ -65,6 +69,15 @@ function insertAllTestDocs(couchbase) {
 }
 
 
+function isNot404(err) {
+
+  debug("isNot404 - ERROR: %o", err)
+
+  return !err.message.test(/\(404\)/)
+
+}
+
+
 describe.only('lib/couchbase', function () {
 
   let connection = null
@@ -93,7 +106,9 @@ describe.only('lib/couchbase', function () {
 
     .finally(() =>
 
-      manager.createBucket(DB_NAME)
+      manager.createBucket(DB_NAME, {
+        saslPassword: DB_CONN.buckets[DB_NAME].password
+      })
 
       .then(() => Connector(DB_CONN))
 
@@ -103,11 +118,16 @@ describe.only('lib/couchbase', function () {
 
       .tap((cb) => { couchbase = cb })
 
+      .catch(err => {
+        debug('beforeEach - ERROR: %o', err)
+        throw err
+      })
+
     )
 
     // don't care about the deletion error.
     // we will know about the failed created from the failed tests.
-    .catch(() => null)
+    .catch(isNot404, () => null)
 
   })
 
