@@ -1697,6 +1697,35 @@ samsam@1.1.2, samsam@~1.1:
   version "1.1.2"
   resolved "https://registry.yarnpkg.com/samsam/-/samsam-1.1.2.tgz#bec11fdc83a9fda063401210e40176c3024d1567"
 
+sanctuary-def@0.12.1, sanctuary-def@^0.12.1:
+  version "0.12.1"
+  resolved "https://registry.yarnpkg.com/sanctuary-def/-/sanctuary-def-0.12.1.tgz#bb9b2ad9407b1519d1ee61fd293b24e86a2044b3"
+  dependencies:
+    sanctuary-type-classes "6.0.x"
+    sanctuary-type-identifiers "2.0.x"
+
+sanctuary-type-classes@6.0.0, sanctuary-type-classes@6.0.x:
+  version "6.0.0"
+  resolved "https://registry.yarnpkg.com/sanctuary-type-classes/-/sanctuary-type-classes-6.0.0.tgz#1db3f8c1247de018471e978fe4956a03eb62f464"
+  dependencies:
+    sanctuary-type-identifiers "1.0.x"
+
+sanctuary-type-identifiers@1.0.x:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/sanctuary-type-identifiers/-/sanctuary-type-identifiers-1.0.0.tgz#e8f359f006cb5e624cfb8464603fc114608bde9f"
+
+sanctuary-type-identifiers@2.0.1, sanctuary-type-identifiers@2.0.x:
+  version "2.0.1"
+  resolved "https://registry.yarnpkg.com/sanctuary-type-identifiers/-/sanctuary-type-identifiers-2.0.1.tgz#fc524cf6dd92cebfcbb0dd9509eff193159a20ed"
+
+sanctuary@^0.13.2:
+  version "0.13.2"
+  resolved "https://registry.yarnpkg.com/sanctuary/-/sanctuary-0.13.2.tgz#ed1c9c2f2b1745d659ee3457954c8b1154f8d4a8"
+  dependencies:
+    sanctuary-def "0.12.1"
+    sanctuary-type-classes "6.0.0"
+    sanctuary-type-identifiers "2.0.1"
+
 seq-queue@0.0.5:
   version "0.0.5"
   resolved "https://registry.yarnpkg.com/seq-queue/-/seq-queue-0.0.5.tgz#d56812e1c017a6e4e7c3e3a37a1da6d78dd3c93e"

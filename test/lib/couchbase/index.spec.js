@@ -22,6 +22,15 @@ const DB_CONN   = {
   }
 }
 
+// Set this to 10 seconds because it takes a damn long time for
+// couchbase to prepare our fancy new bucket.
+const DELAY_BUCKET_READY = 10000
+const FLAG_FLUSH_ENABLED = 1
+
+
+// Need a timeout of 15 seconds now because... see above
+const TEST_TIMEOUT = 30000
+
 
 const TEST_DOCS = [
   { username: 'superman'
@@ -69,71 +78,65 @@ function insertAllTestDocs(couchbase) {
 }
 
 
-function isNot404(err) {
+function createBucket(manager, bucket_name, password) {
 
-  debug("isNot404 - ERROR: %o", err)
+  return manager.createBucket(bucket_name, {
+    saslPassword: password
+  , flushEnabled: FLAG_FLUSH_ENABLED
+  })
 
-  const is_404 = /\(404\)/.test(err.message)
+  .delay(DELAY_BUCKET_READY)
 
-  debug('isNot404 - Result: %o, Message: %s', is_404, err.message)
+}
 
-  return !(/\(404\)/.test(err.message))
+
+function createIfNotExists(bucket_name, password) {
+
+  const manager = Manager(DB_CONN)
+
+  return manager.listBuckets()
+
+  .tap(list => debug("CURRENT_BUCKETS: %o", R.map(R.prop('name'), list)))
+
+  .filter(R.propEq('name', DB_NAME))
+
+  .then(R.when(R.isEmpty, () => createBucket(manager, bucket_name, password)))
 
 }
 
 
 describe.only('lib/couchbase', function () {
 
-  let connection = null
+  this.timeout(TEST_TIMEOUT)
+
   let couchbase  = null
-  let manager    = null
+  //let connection = null
 
-  before(function() {
+  before(function Initialize() {
 
-    return Bluebird.resolve(Manager(DB_CONN))
+    return createIfNotExists(DB_NAME, DB_CONN.buckets[DB_NAME].password)
 
-    .tap((mgr) => { manager = mgr })
+    .then(() => Connector(DB_CONN))
 
-  })
+    //.tap(conn => { connection = conn })
 
+    // This will take about 20s because... reasons.
+    .tap(conn => conn.truncate(DB_NAME))
 
-  after(function() {
+    .tap(() => debug("Couchbase connection initialized"))
 
-    //return manager.removeBucket(DB_NAME)
+    .then((conn) => Couchbase(conn))
 
-  })
+    .tap((cb) => { couchbase = cb })
 
+    .tap(() => debug("Couchbase client initialized"))
 
-  beforeEach(function() {
+    .then(insertAllTestDocs)
 
-    return Bluebird.resolve(manager.removeBucket(DB_NAME))
-
-    .finally(() =>
-
-      manager.createBucket(DB_NAME, {
-        saslPassword: DB_CONN.buckets[DB_NAME].password
-      })
-
-      .delay(1000)
-
-      .then(() => Connector(DB_CONN))
-
-      .tap((conn) => { connection = conn })
-
-      .then((conn) => Couchbase(conn))
-
-      .tap((cb) => { couchbase = cb })
-
-      .catch(err => {
-        debug('beforeEach - ERROR: %o', err)
-        throw err
-      })
-
-    )
-
-    // don't care about the deletion error.
-    // we will know about the failed created from the failed tests.
-    .catch(isNot404, () => null)
+    .catch(err => {
+      debug('beforeEach - ERROR: %o', err)
+      throw err
+    })
 
   })
 
@@ -143,11 +146,43 @@ describe.only('lib/couchbase', function () {
     it('should insert a document into the given bucket and return a unique ' +
       'identifier for that new document', function() {
 
-        return couchbase.insert(DB_NAME, TEST_DOCS[0])
+        const the_flash =
+          { username: 'the_flash'
+          , name_first: 'Barry'
+          , name_last: 'Allen'
+          , side: 'hero'
+          }
 
-        .tap((x) => console.log("INSERT RESPONSE: ", x))
+        return couchbase.insert(DB_NAME, the_flash)
 
-        .then((id) => demand(id).is.a.string())
+        .tap(x => debug("insert response: %o", x))
+
+        .then(res => {
+
+          demand(res.id).be.a.string()
+          demand(res.cas.toString()).be.a.string()
+
+          return couchbase.getById(DB_NAME, res.id)
+        })
+
+        .delay(100)
+
+        .tap(x => debug("getById response: %o", x))
+
+        .then(doc => {
+          demand(doc.username).must.equal('the_flash')
+          demand(doc.name_first).must.equal('Barry')
+          demand(doc.name_last).must.equal('Allen')
+          demand(doc.side).must.equal('hero')
+
+          doc.name_first = 'Larry'
+
+          return couchbase.upsert(DB_NAME, ['username'], doc)
+        })
+
+        .then(res => {
+          demand(res.id).is.a.string()
+        })
 
       })
 

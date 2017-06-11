@@ -45,6 +45,8 @@
     "pimp-my-sql": "0.3.1",
     "ramda": "^0.22.1",
     "request": "^2.75.0",
+    "sanctuary": "^0.13.2",
+    "sanctuary-def": "^0.12.1",
     "simple-backoff": "^1.0.0",
     "uuid": "^3.0.1"
   },
